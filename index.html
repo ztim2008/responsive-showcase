@@ -302,7 +302,7 @@
     const initial = new URLSearchParams(location.search).get('url') || localStorage.getItem('showcaseUrl') || '';
     const oldStarter = value => { try { return new URL(value).hostname.replace(/^www\./,'') === 'fireship.dev'; } catch { return false; } };
     if (initial && !oldStarter(initial)) loadSite(initial);
-    else { if (oldStarter(initial)) { localStorage.removeItem('showcaseUrl'); urlInput.value = ''; } showDemo(); }
+    else { if (oldStarter(initial)) { localStorage.removeItem('showcaseUrl'); urlInput.value = ''; history.replaceState({}, '', location.pathname); } showDemo(); }
   </script>
 </body>
 </html>
