@@ -75,6 +75,10 @@
     .phone-frame { width:156px; height:auto; aspect-ratio:390 / 844; border:8px solid #30383c; border-radius:22px; box-shadow:0 2px 0 #859095 inset,0 0 0 1px #68747a; }
     .phone-frame:before { content:""; position:absolute; z-index:1; width:48px; height:12px; top:0; left:calc(50% - 24px); background:#30383c; border-radius:0 0 9px 9px; }
     .composition-hint { position:absolute; left:50%; bottom:8px; transform:translateX(-50%); color:#d8dee1; font:11px ui-monospace,monospace; white-space:nowrap; background:#20272b; padding:7px 11px; border:1px solid #58646a; border-radius:4px; pointer-events:none }
+    .board.presentation-export { border:0; border-radius:0; padding:30px 24px; box-shadow:none; background-image:radial-gradient(ellipse at 18% 18%,#ffffff3b,transparent 34%),radial-gradient(ellipse at 84% 82%,#f15b2238,transparent 32%),linear-gradient(135deg,var(--board-bg,#b6bec2),#26364b) }
+    .board.presentation-export .board-head,.board.presentation-export .device-label,.board.presentation-export .composition-hint { display:none!important }
+    .board.presentation-export .devices { min-height:520px; gap:clamp(18px,2vw,34px) }
+    .board.presentation-export .device { transform:translate(var(--dx),var(--dy)) scale(1.04); transition:none }
     .canvas-controls { display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin:0 0 14px; color:#414b52; font:11px ui-monospace,monospace }
     .canvas-controls input[type=color] { width:34px;height:29px;padding:2px;border:1px solid #8d989c;border-radius:4px;background:#e7eaeb;cursor:pointer }
     .canvas-controls .btn { padding:7px 10px }
@@ -94,6 +98,7 @@
     .foot a { color:#575951; text-decoration:none }
     .foot a:hover { text-decoration:underline }
     @media (max-width:850px) and (min-width:561px) { main { width:96vw; padding:30px 24px } .intro { align-items:flex-start; flex-direction:column; gap:18px } .site-link { width:100% } .board { padding:20px 18px; min-height:0 } .devices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;min-height:0;padding-bottom:40px } .device[data-device="desktop"] { grid-column:1 / -1 } .desktop-frame { width:min(100%,680px) } .tablet-frame { width:min(100%,245px) } .phone-frame { width:min(100%,170px) } .device-label { max-width:100% } .composition-hint {bottom:3px} .preview-notice {align-items:flex-start} }
+    @media (max-width:1100px) { .board.presentation-export .devices { gap:12px } .board.presentation-export .device { transform:translate(var(--dx),var(--dy)) scale(.84) } }
     @media (max-width:560px) { .topbar { padding:0 4vw } .saved { display:none } main { width:96vw; margin:10px auto;padding:24px 12px;border-radius:12px } h1 { font-size:32px } .toolbar { align-items:flex-start; gap:12px; flex-direction:column } .view-actions { width:100%; justify-content:space-between } .device-toggles { flex-wrap:wrap; gap:8px 12px } .drag-hint { width:100%; margin:0 } .board { padding:16px 10px; min-height:0 } .board-head { margin-bottom:16px;font-size:9px } .devices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:0;align-items:start;gap:18px 10px;padding-bottom:0 } .device[data-device="desktop"] { grid-column:1 / -1;order:3 } .device[data-device="tablet"] {order:1} .device[data-device="phone"] {order:2} .desktop-frame { width:100% } .tablet-frame { width:min(100%,190px) } .phone-frame { width:min(100%,150px) } .device-label { margin-top:8px;padding:6px 5px;gap:4px;font-size:8px } .device-label:before {font-size:11px} .composition-hint {position:static;transform:none;grid-column:1 / -1;order:4;margin:0 auto;max-width:100%;white-space:normal;text-align:center;font-size:10px}.preview-notice {align-items:flex-start;flex-direction:column}.export-status {font-size:10px}.foot { flex-direction:column; gap:8px } }
     @media (prefers-reduced-motion:reduce) { *,*:before,*:after { transition:none!important;scroll-behavior:auto!important } }
     @media print { body { background:white } .topbar,.intro .site-link,.toolbar,.foot { display:none!important } main { width:100%; padding:0 } .intro { margin:0 0 14px } .intro h1 { font-size:24px } .board { border:0; background:#f0efe9; min-height:0; padding:18px } .devices { min-height:0 } .desktop-frame { width:54vw; height:350px } .device.hidden { display:flex!important } }
@@ -218,10 +223,12 @@
     transparentButton.addEventListener('click', () => setBoardBackground(bgPicker.value, !board.classList.contains('transparent')));
     setBoardBackground(localStorage.getItem('showcaseBg') || '#b6bec2', localStorage.getItem('showcaseBgTransparent') === 'true');
     document.querySelector('#downloadPng').addEventListener('click', async () => {
-      const rect = board.getBoundingClientRect();
+      board.classList.add('presentation-export');
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      let rect = board.getBoundingClientRect();
       const scale = 2, width = Math.round(rect.width), height = Math.round(rect.height);
       const status = document.querySelector('#exportStatus');
-      status.textContent = 'Выберите вкладку с этим макетом в системном окне захвата.';
+      status.textContent = 'Готовлю PNG-презентацию без подписей устройств…';
       if (navigator.mediaDevices?.getDisplayMedia) {
         let stream;
         try {
@@ -246,37 +253,38 @@
             });
             context.globalCompositeOperation='destination-in'; context.drawImage(mask,0,0); context.globalCompositeOperation='source-over';
           }
+          board.classList.remove('presentation-export');
           await new Promise(resolve=>canvas.toBlob(blob=>{
-            if(blob){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='showcase-composition.png';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);status.textContent='PNG сохранён со снимком открытой вкладки.';}
+            if(blob){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='showcase-presentation.png';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);status.textContent='PNG-презентация готова — без технических подписей.';}
             resolve();
           },'image/png'));
           stream.getTracks().forEach(track=>track.stop());
           return;
         } catch (error) {
           if (stream) stream.getTracks().forEach(track=>track.stop());
+          board.classList.remove('presentation-export');
+          rect = board.getBoundingClientRect();
           status.textContent = 'Захват вкладки отменён или недоступен. Скачиваю PNG с векторными рамками.';
         }
-      } else status.textContent='Захват вкладки не поддерживается. PNG будет содержать векторные рамки.';
-      const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+      } else { board.classList.remove('presentation-export'); rect = board.getBoundingClientRect(); status.textContent='Захват вкладки не поддерживается. PNG будет содержать векторные рамки.'; }
       const rgb = bgPicker.value;
-      let shapes = board.classList.contains('transparent') ? '' : `<rect width="100%" height="100%" fill="${rgb}"/>`;
-      shapes += `<text x="28" y="36" fill="#d8dee1" font-family="monospace" font-size="12" letter-spacing="1.5">ПРЕДПРОСМОТР АДАПТИВНОСТИ</text><text x="${width-28}" y="36" text-anchor="end" fill="#d8dee1" font-family="monospace" font-size="12">${esc(document.querySelector('#domain').textContent)}</text>`;
+      const defs = `<defs><linearGradient id="scene" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rgb}"/><stop offset="1" stop-color="#26364b"/></linearGradient><radialGradient id="glow"><stop offset="0" stop-color="#ffffff" stop-opacity=".24"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient><filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="12"/><feOffset dy="14"/><feComponentTransfer><feFuncA type="linear" slope=".42"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+      let shapes = board.classList.contains('transparent') ? '' : `<rect width="100%" height="100%" fill="url(#scene)"/><ellipse cx="${width*.18}" cy="${height*.18}" rx="${width*.3}" ry="${height*.36}" fill="url(#glow)"/><circle cx="${width*.84}" cy="${height*.82}" r="${Math.min(width,height)*.38}" fill="#f15b22" opacity=".08"/>`;
       document.querySelectorAll('.device:not(.hidden)').forEach(device => {
         const screen = device.querySelector('.screen').getBoundingClientRect();
-        const label = device.querySelector('.device-label').getBoundingClientRect();
         const x=screen.left-rect.left, y=screen.top-rect.top, w=screen.width, h=screen.height;
         const r=device.dataset.device==='phone'?22:device.dataset.device==='tablet'?14:6;
-        shapes += `<rect x="${x-8}" y="${y-8}" width="${w+16}" height="${h+16}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(1,r-7)}" fill="#f2f4f4"/>`;
+        shapes += `<g filter="url(#shadow)"><rect x="${x-8}" y="${y-8}" width="${w+16}" height="${h+16}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(1,r-7)}" fill="#f2f4f4"/>`;
         if(device.dataset.device==='phone') shapes += `<rect x="${x+w/2-24}" y="${y-7}" width="48" height="12" rx="6" fill="#30383c"/>`;
         if(device.dataset.device==='desktop') shapes += `<rect x="${x+w*.38}" y="${y+h+8}" width="${w*.24}" height="8" rx="3" fill="#98a1a4"/>`;
-        shapes += `<rect x="${label.left-rect.left}" y="${label.top-rect.top}" width="${label.width}" height="${label.height}" rx="4" fill="#313a3e" stroke="#6b777c"/><text x="${label.left-rect.left+12}" y="${label.top-rect.top+label.height/2+4}" fill="#f2f4f4" font-family="Arial,sans-serif" font-size="12" font-weight="700">${esc(device.querySelector('.device-label strong').textContent)}</text><text x="${label.right-rect.left-9}" y="${label.top-rect.top+label.height/2+4}" text-anchor="end" fill="#d8dee1" font-family="monospace" font-size="10">${esc(device.querySelector('.device-label span').textContent)}</text>`;
+        shapes += `</g>`;
       });
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width*scale}" height="${height*scale}" viewBox="0 0 ${width} ${height}"><g>${shapes}</g></svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width*scale}" height="${height*scale}" viewBox="0 0 ${width} ${height}">${defs}<g>${shapes}</g></svg>`;
       const image = new Image(); image.onload = () => {
         const canvas = document.createElement('canvas'); canvas.width=width*scale; canvas.height=height*scale;
         const context=canvas.getContext('2d'); context.drawImage(image,0,0); canvas.toBlob(blob=>{
           if(!blob) return;
-          const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='showcase-composition.png'; link.click(); setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+          const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='showcase-presentation.png'; link.click(); setTimeout(()=>URL.revokeObjectURL(link.href),1000); status.textContent='PNG-презентация готова — без технических подписей.';
         },'image/png');
       };
       image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
@@ -306,4 +314,5 @@
   </script>
 </body>
 </html>
+
 
