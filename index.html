@@ -107,7 +107,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="brand-mark">P</span> показ</div>
-    <div class="top-right"><span class="saved" id="saved">Ссылка сохраняется в браузере</span><button class="btn" id="print">Скачать PDF</button></div>
+    <div class="top-right"><span class="saved" id="saved">Ссылка сохраняется в браузере</span><button class="btn" id="restart" type="button">↻ Перезапустить демо</button><button class="btn" id="print">Скачать PDF</button></div>
   </header>
   <main>
     <section class="intro">
@@ -121,7 +121,7 @@
     <div class="device-toggles"><strong>Показать:</strong><label><input type="checkbox" data-toggle="desktop" checked> Ноутбук</label><label><input type="checkbox" data-toggle="tablet" checked> Планшет</label><label><input type="checkbox" data-toggle="phone" checked> Телефон</label><span class="drag-hint">Перетаскивайте устройства за подпись</span><button class="reset-layout" id="resetLayout">Сбросить композицию</button></div>
     <div class="canvas-controls" aria-label="Настройки фона и экспорта"><label for="backgroundColor">Фон холста <input id="backgroundColor" type="color" value="#b6bec2"></label><button class="btn" id="transparentBg" type="button" aria-pressed="false">Прозрачный фон</button><button class="btn primary" id="downloadPng" type="button">Скачать PNG ↓</button><span class="export-note">Для захвата страницы выберите эту вкладку в окне браузера.</span><span class="export-status" id="exportStatus" role="status" aria-live="polite"></span></div>
     <section class="board">
-      <div class="board-head"><span>Предпросмотр адаптивности</span><span id="domain">Демо-макет</span></div>
+      <div class="board-head"><span>Предпросмотр адаптивности</span><span id="domain">Тёплая форма</span></div>
       <div class="devices">
         <div class="device" data-device="desktop"><div class="screen desktop-frame"><iframe title="Предпросмотр сайта на десктопе"></iframe></div><div class="device-label"><strong>Ноутбук</strong><span>1440 × 900</span></div></div>
         <div class="device" data-device="tablet"><div class="screen tablet-frame"><iframe title="Предпросмотр сайта на планшете"></iframe></div><div class="device-label"><strong>Планшет</strong><span>768 × 1024</span></div></div>
@@ -129,14 +129,14 @@
         <div class="composition-hint">⠿ Перетащите устройства, чтобы собрать композицию</div>
       </div>
     </section>
-    <aside class="preview-notice" id="previewNotice"><span id="previewMessage">Это нейтральный макет — вставьте адрес сайта выше. Если сайт запрещает встраивание, откройте его отдельно или покажите макет-заглушку.</span><button class="btn" id="showDemo" type="button">Показать демо-макет</button><a id="openBlockedSite" href="#" target="_blank" rel="noopener" hidden>Открыть сайт ↗</a></aside>
+    <aside class="preview-notice" id="previewNotice"><span id="previewMessage">Встроенный демонстрационный сайт — можно сразу посмотреть композицию или ввести адрес своего сайта.</span><button class="btn" id="showDemo" type="button">Показать демо-сайт</button><a id="openBlockedSite" href="#" target="_blank" rel="noopener" hidden>Открыть сайт ↗</a></aside>
     <footer class="foot"><span>Подготовлено для обсуждения дизайна и адаптивности</span><span>Если сайт блокирует просмотр, нажмите «Открыть сайт». Предпросмотр может отличаться от настоящего устройства.</span></footer>
   </main>
   <script>
     const urlInput = document.querySelector('#urlInput');
     const frames = [...document.querySelectorAll('iframe')];
     const viewports = { desktop: [1440, 900], tablet: [768, 1024], phone: [390, 844] };
-    const demoDocument = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;background:#f6f4ee;color:#192326;font:15px/1.5 Arial,sans-serif}.nav{height:66px;padding:0 7%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d9ddd6}.brand{font-size:12px;font-weight:800;letter-spacing:.12em}.brand b{color:#d66a42}.links{display:flex;gap:22px;font-size:11px;color:#64706b}.nav button,.cta{border:0;border-radius:3px;background:#1e2928;color:white;padding:11px 16px;font-size:11px;font-weight:700}.hero{min-height:480px;padding:9% 8%;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:5%;background:radial-gradient(ellipse at 80% 42%,#dce5dc,transparent 42%),#f6f4ee}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c26342;font-weight:700}.hero h1{font:500 clamp(34px,5vw,68px)/.98 Georgia,serif;letter-spacing:-.05em;margin:20px 0;max-width:600px}.hero p{max-width:380px;color:#67716a;font-size:14px}.cta{display:inline-block;margin-top:12px;text-decoration:none;background:#d66a42}.art{height:310px;position:relative;border-radius:48% 48% 8px 8px;background:linear-gradient(145deg,#c5d2c6,#e8d8c4 58%,#d39168);overflow:hidden}.sun{position:absolute;width:110px;height:110px;border-radius:50%;background:#f7e9c8;right:18%;top:16%;box-shadow:0 0 60px #fff8}.hill{position:absolute;left:-5%;right:-5%;bottom:-18%;height:60%;border-radius:50% 50% 0 0;background:#61746b;transform:rotate(-8deg)}.hill:after{content:'';position:absolute;width:120%;height:70%;top:34%;left:20%;border-radius:50% 50% 0 0;background:#344b48;transform:rotate(12deg)}.note{position:absolute;bottom:16px;left:16px;background:#f6f4ee;padding:9px 12px;font-size:10px;letter-spacing:.08em}.section{padding:44px 8%;background:#fff}.section small{color:#c26342;letter-spacing:.14em;text-transform:uppercase}.section h2{font:500 30px Georgia,serif;margin:10px 0 24px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{padding:16px;background:#f1f2ec;min-height:100px}.card b{display:block;font:18px Georgia,serif;margin-bottom:7px}.card span{font-size:11px;color:#67716a}@media(max-width:620px){.nav{height:54px;padding:0 6%}.links{display:none}.nav button{padding:9px;font-size:9px}.hero{grid-template-columns:1fr;gap:24px;padding:13% 8%;min-height:0}.hero h1{font-size:42px}.hero p{font-size:13px}.art{height:210px}.section{padding:30px 8%}.section h2{font-size:25px}.cards{grid-template-columns:1fr}.card{min-height:75px}}</style><body><header class="nav"><div class="brand"><b>●</b> ВАШ БРЕНД</div><div class="links"><span>О проекте</span><span>Услуги</span><span>Контакты</span></div><button>Связаться</button></header><main><section class="hero"><div><div class="eyebrow">Новый взгляд на привычное</div><h1>Идеи становятся проектами</h1><p>Это демонстрационный макет. Вставьте адрес своего сайта, чтобы посмотреть его на экранах разных устройств.</p><a class="cta" href="#about">Узнать больше ↗</a></div><div class="art"><div class="sun"></div><div class="hill"></div><div class="note">ПРИМЕР АДАПТИВНОГО ДИЗАЙНА</div></div></section><section class="section" id="about"><small>Наш подход</small><h2>Продумано для каждого экрана</h2><div class="cards"><div class="card"><b>01 — Идея</b><span>Понятная подача и свой характер.</span></div><div class="card"><b>02 — Детали</b><span>Ритм, пространство и типографика.</span></div><div class="card"><b>03 — Результат</b><span>Удобный опыт на любом устройстве.</span></div></div></section></main></body></html>`;
+    const demoDocument = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;background:#f6f4ee;color:#192326;font:15px/1.5 Arial,sans-serif}.nav{height:66px;padding:0 7%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d9ddd6}.brand{font-size:12px;font-weight:800;letter-spacing:.12em}.brand b{color:#d66a42}.links{display:flex;gap:22px;font-size:11px;color:#64706b}.nav button,.cta{border:0;border-radius:3px;background:#1e2928;color:white;padding:11px 16px;font-size:11px;font-weight:700}.hero{min-height:480px;padding:9% 8%;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:5%;background:radial-gradient(ellipse at 80% 42%,#dce5dc,transparent 42%),#f6f4ee}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c26342;font-weight:700}.hero h1{font:500 clamp(34px,5vw,68px)/.98 Georgia,serif;letter-spacing:-.05em;margin:20px 0;max-width:600px}.hero p{max-width:380px;color:#67716a;font-size:14px}.cta{display:inline-block;margin-top:12px;text-decoration:none;background:#d66a42}.art{height:310px;position:relative;border-radius:48% 48% 8px 8px;background:linear-gradient(145deg,#c5d2c6,#e8d8c4 58%,#d39168);overflow:hidden}.sun{position:absolute;width:110px;height:110px;border-radius:50%;background:#f7e9c8;right:18%;top:16%;box-shadow:0 0 60px #fff8}.hill{position:absolute;left:-5%;right:-5%;bottom:-18%;height:60%;border-radius:50% 50% 0 0;background:#61746b;transform:rotate(-8deg)}.hill:after{content:'';position:absolute;width:120%;height:70%;top:34%;left:20%;border-radius:50% 50% 0 0;background:#344b48;transform:rotate(12deg)}.note{position:absolute;bottom:16px;left:16px;background:#f6f4ee;padding:9px 12px;font-size:10px;letter-spacing:.08em}.section{padding:44px 8%;background:#fff}.section small{color:#c26342;letter-spacing:.14em;text-transform:uppercase}.section h2{font:500 30px Georgia,serif;margin:10px 0 24px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{padding:16px;background:#f1f2ec;min-height:100px}.card b{display:block;font:18px Georgia,serif;margin-bottom:7px}.card span{font-size:11px;color:#67716a}@media(max-width:620px){.nav{height:54px;padding:0 6%}.links{display:none}.nav button{padding:9px;font-size:9px}.hero{grid-template-columns:1fr;gap:24px;padding:13% 8%;min-height:0}.hero h1{font-size:42px}.hero p{font-size:13px}.art{height:210px}.section{padding:30px 8%}.section h2{font-size:25px}.cards{grid-template-columns:1fr}.card{min-height:75px}}</style><body><header class="nav"><div class="brand"><b>●</b> ТЁПЛАЯ ФОРМА</div><div class="links"><span>Проекты</span><span>Подход</span><span>Контакты</span></div><button>Обсудить проект</button></header><main><section class="hero"><div><div class="eyebrow">Архитектурная мастерская</div><h1>Тихая архитектура для жизни</h1><p>Проектируем дома и интерьеры, в которых свет, материалы и повседневные детали складываются в единое целое.</p><a class="cta" href="#about">Обсудить проект ↗</a></div><div class="art"><div class="sun"></div><div class="hill"></div><div class="note">ДОМ «СЕВЕРНЫЙ САД» · 2026</div></div></section><section class="section" id="about"><small>Избранные проекты</small><h2>Пространства с характером</h2><div class="cards"><div class="card"><b>01 — Дома</b><span>Частные дома с вниманием к свету и ландшафту.</span></div><div class="card"><b>02 — Интерьеры</b><span>Цельные пространства от планировки до деталей.</span></div><div class="card"><b>03 — Сопровождение</b><span>Помогаем проекту пройти путь от эскиза до реализации.</span></div></div></section></main></body></html>`;
     function fitFrames() {
       frames.forEach(frame => {
         const box = frame.parentElement;
@@ -168,17 +168,16 @@
       } catch { urlInput.focus(); urlInput.setCustomValidity('Введите корректную ссылку на сайт'); urlInput.reportValidity(); return null; }
     }
     function showDemo() {
-      const requested = urlInput.value.trim();
-      let site = null;
-      try { if (requested) site = cleanUrl(requested); } catch {}
+      urlInput.value = '';
+      localStorage.removeItem('showcaseUrl');
+      history.replaceState({}, '', location.pathname);
       frames.forEach(frame => { frame.removeAttribute('src'); frame.srcdoc = demoDocument; });
-      document.querySelector('#domain').textContent = site ? `${site.hostname} · демо-макет` : 'Демо-макет';
-      document.querySelector('#projectTitle').textContent = site ? site.hostname.replace(/^www\./,'') : 'Ваш новый сайт';
-      document.title = site ? `${site.hostname} — демо-макет` : 'Показ — предпросмотр сайта на разных устройствах';
-      document.querySelector('#previewMessage').textContent = site ? `Сайт ${site.hostname} открывается отдельно, но не разрешает показ внутри этой композиции. Здесь показан нейтральный макет; уточните у владельца сайта, можно ли разрешить встраивание.` : 'Это нейтральный макет — вставьте адрес сайта выше. Если сайт запрещает встраивание, откройте его отдельно или покажите макет-заглушку.';
-      document.querySelector('#openBlockedSite').hidden = !site;
-      if (site) document.querySelector('#openBlockedSite').href = site.href;
-      document.querySelector('#previewNotice').hidden = false;
+      document.querySelector('#domain').textContent = 'Демо-сайт · Тёплая форма';
+      document.querySelector('#projectTitle').textContent = 'Тёплая форма';
+      document.title = 'Демо-сайт «Тёплая форма» — Показ';
+      document.querySelector('#previewMessage').textContent = 'Демонстрационный сайт студии архитектуры. Вставьте адрес своего сайта, чтобы посмотреть его на разных устройствах.';
+      document.querySelector('#openBlockedSite').hidden = true;
+      document.querySelector('#previewNotice').hidden = true;
       requestAnimationFrame(fitFrames);
     }
     document.querySelector('#showDemo').addEventListener('click', showDemo);
@@ -207,6 +206,15 @@
       document.querySelectorAll('.device').forEach(device => {
         device.style.setProperty('--dx', '0px'); device.style.setProperty('--dy', '0px'); device.style.zIndex = '';
       });
+    });
+    document.querySelector('#restart').addEventListener('click', () => {
+      activeView = 'all';
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.view === 'all'));
+      Object.keys(enabled).forEach(key => { enabled[key] = true; document.querySelector(`[data-toggle="${key}"]`).checked = true; });
+      document.querySelectorAll('.device').forEach(device => { device.style.setProperty('--dx', '0px'); device.style.setProperty('--dy', '0px'); device.style.zIndex = ''; });
+      setBoardBackground('#b6bec2', false);
+      showDemo();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
     const board = document.querySelector('.board');
     const bgPicker = document.querySelector('#backgroundColor');
@@ -308,10 +316,10 @@
       device.addEventListener('pointercancel', stop);
     });
     window.addEventListener('resize', fitFrames);
-    const initial = new URLSearchParams(location.search).get('url') || localStorage.getItem('showcaseUrl') || '';
-    const oldStarter = value => { try { return new URL(value).hostname.replace(/^www\./,'') === 'fireship.dev'; } catch { return false; } };
-    if (initial && !oldStarter(initial)) loadSite(initial);
-    else { if (oldStarter(initial)) { localStorage.removeItem('showcaseUrl'); urlInput.value = ''; history.replaceState({}, '', location.pathname); } showDemo(); }
+    const initial = new URLSearchParams(location.search).get('url') || '';
+    const isDemoHost = value => { try { const host = new URL(value).hostname.replace(/^www\./,''); return host === 'fireship.dev' || host === 'dkbani.ru' || host.endsWith('.dkbani.ru'); } catch { return false; } };
+    if (initial && !isDemoHost(initial)) loadSite(initial);
+    else { localStorage.removeItem('showcaseUrl'); showDemo(); }
   </script>
 </body>
 </html>
