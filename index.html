@@ -55,11 +55,11 @@
     .device-toggles input { accent-color:#35372f }
     .drag-hint { margin-left:auto; color:#92938b; font-size:10px }
     .reset-layout { border:0; background:transparent; color:#55574f; font-size:10px; text-decoration:underline; text-underline-offset:3px; padding:2px 0; cursor:pointer }
-    .board { min-height:600px; aspect-ratio:var(--canvas-ratio,auto); background:var(--board-bg,var(--canvas)); border:9px solid #323a3e; border-radius:8px; padding:var(--canvas-padding,24px); overflow:hidden; position:relative; box-shadow:inset 0 4px 13px #080b0d70,inset 0 0 0 1px #627077,0 2px 0 #eef0f0; transition:background-color 140ms }
+    .board { min-height:600px; background:var(--board-bg,var(--canvas)); border:9px solid #323a3e; border-radius:8px; padding:25px 22px; overflow:hidden; position:relative; box-shadow:inset 0 4px 13px #080b0d70,inset 0 0 0 1px #627077,0 2px 0 #eef0f0; transition:background-color 140ms }
     .board.transparent { background-color:transparent; background-image:linear-gradient(45deg,#d5dadd 25%,transparent 25%),linear-gradient(-45deg,#d5dadd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#d5dadd 75%),linear-gradient(-45deg,transparent 75%,#d5dadd 75%); background-size:18px 18px; background-position:0 0,0 9px,9px -9px,-9px 0 }
     .board-head { display:flex; justify-content:space-between; align-items:center; margin:0 4px 22px; color:#d8dee1; font:11px/1.3 ui-monospace,monospace; text-transform:uppercase; letter-spacing:.12em; font-weight:700 }
     .board-head span:last-child { font-weight:500; letter-spacing:.04em; text-transform:none }
-    .devices { display:flex; justify-content:center; align-items:center; gap:var(--device-gap,18px); min-height:490px; position:relative }
+    .devices { display:flex; justify-content:center; align-items:center; gap:clamp(12px,1.3vw,22px); min-height:490px; position:relative }
     .device { display:flex; flex-direction:column; align-items:center; min-width:0; position:relative; cursor:grab; touch-action:none; user-select:none; --dx:0px; --dy:0px; transform:translate(var(--dx),var(--dy)); filter:drop-shadow(0 12px 8px #0c111440); transition:filter 140ms }
     .device:hover { filter:drop-shadow(0 16px 10px #0c111455) }
     .device:active { cursor:grabbing }
@@ -85,22 +85,6 @@
     .preview-notice a { color:#181e22;font-weight:700;white-space:nowrap }
     .preview-notice[hidden] { display:none }
     .preview-notice .btn { flex:none;white-space:nowrap }
-    .editor-settings { display:grid;gap:8px;margin:0 0 14px }
-    .settings-panel { border:1px solid #aeb7bb;border-radius:5px;background:#d7dcdd;box-shadow:inset 0 1px #f3f4f4,0 1px #afb7b9 }
-    .settings-panel summary { cursor:pointer;padding:9px 12px;color:#303a3f;font-size:12px;font-weight:700 }
-    .setting-grid { display:grid;grid-template-columns:repeat(4,minmax(130px,1fr));gap:10px;padding:0 12px 12px }
-    .setting-grid label,.device-setting label { display:flex;flex-direction:column;gap:4px;color:#414b52;font-size:10px }
-    .setting-grid input,.setting-grid select,.device-setting input,.device-setting select { min-width:0;border:1px solid #aeb7bb;border-radius:3px;background:#f2f4f4;color:#181e22;padding:6px 7px;font-size:11px }
-    .setting-grid input[type=color] { width:100%;height:30px;padding:2px }
-    .setting-grid input[type=range] { padding:0 }
-    .setting-grid .wide { grid-column:span 2 }
-    .setting-actions { display:flex;align-items:end;gap:7px;flex-wrap:wrap }
-    .device-settings { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 12px 12px }
-    .device-setting { display:grid;grid-template-columns:minmax(110px,1fr) 76px 76px auto;align-items:end;gap:6px;padding:9px;border:1px solid #bec5c7;border-radius:4px;background:#e1e5e6 }
-    .device-setting strong { grid-column:1/-1;color:#303a3f;font-size:11px }
-    .device-setting .btn { padding:6px 8px;font-size:10px }
-    @media(max-width:850px) { .setting-grid {grid-template-columns:repeat(2,minmax(0,1fr))}.device-settings {grid-template-columns:1fr}.device-setting {grid-template-columns:minmax(110px,1fr) 76px 76px auto} }
-    @media(max-width:560px) { .setting-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.setting-grid .wide {grid-column:1/-1}.device-setting {grid-template-columns:1fr 1fr}.device-setting strong {grid-column:1/-1}.device-setting .btn {grid-column:1/-1} }
     .device.hidden { display:none }
     .empty { position:absolute; inset:0; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:24px; background:rgba(240,239,233,.96); color:var(--ink) }
     .empty.show { display:flex }
@@ -110,7 +94,7 @@
     .foot a { color:#575951; text-decoration:none }
     .foot a:hover { text-decoration:underline }
     @media (max-width:850px) and (min-width:561px) { main { width:96vw; padding:30px 24px } .intro { align-items:flex-start; flex-direction:column; gap:18px } .site-link { width:100% } .board { padding:20px 18px; min-height:0 } .devices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;min-height:0;padding-bottom:40px } .device[data-device="desktop"] { grid-column:1 / -1 } .desktop-frame { width:min(100%,680px) } .tablet-frame { width:min(100%,245px) } .phone-frame { width:min(100%,170px) } .device-label { max-width:100% } .composition-hint {bottom:3px} .preview-notice {align-items:flex-start} }
-    @media (max-width:560px) { .topbar { padding:0 4vw } .saved { display:none } main { width:96vw; margin:10px auto;padding:24px 12px;border-radius:12px } h1 { font-size:32px } .toolbar { align-items:flex-start; gap:12px; flex-direction:column } .view-actions { width:100%; justify-content:space-between } .device-toggles { flex-wrap:wrap; gap:8px 12px } .drag-hint { width:100%; margin:0 } .board { padding:var(--canvas-padding,16px 10px); min-height:0 } .board-head { margin-bottom:16px;font-size:9px } .devices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:0;align-items:start;gap:18px 10px;padding-bottom:0 } .device[data-device="desktop"] { grid-column:1 / -1;order:3 } .device[data-device="tablet"] {order:1} .device[data-device="phone"] {order:2} .desktop-frame { width:100% } .tablet-frame { width:min(100%,190px) } .phone-frame { width:min(100%,150px) } .device-label { margin-top:8px;padding:6px 5px;gap:4px;font-size:8px } .device-label:before {font-size:11px} .composition-hint {position:static;transform:none;grid-column:1 / -1;order:4;margin:0 auto;max-width:100%;white-space:normal;text-align:center;font-size:10px}.preview-notice {align-items:flex-start;flex-direction:column}.export-status {font-size:10px}.foot { flex-direction:column; gap:8px } }
+    @media (max-width:560px) { .topbar { padding:0 4vw } .saved { display:none } main { width:96vw; margin:10px auto;padding:24px 12px;border-radius:12px } h1 { font-size:32px } .toolbar { align-items:flex-start; gap:12px; flex-direction:column } .view-actions { width:100%; justify-content:space-between } .device-toggles { flex-wrap:wrap; gap:8px 12px } .drag-hint { width:100%; margin:0 } .board { padding:16px 10px; min-height:0 } .board-head { margin-bottom:16px;font-size:9px } .devices { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:0;align-items:start;gap:18px 10px;padding-bottom:0 } .device[data-device="desktop"] { grid-column:1 / -1;order:3 } .device[data-device="tablet"] {order:1} .device[data-device="phone"] {order:2} .desktop-frame { width:100% } .tablet-frame { width:min(100%,190px) } .phone-frame { width:min(100%,150px) } .device-label { margin-top:8px;padding:6px 5px;gap:4px;font-size:8px } .device-label:before {font-size:11px} .composition-hint {position:static;transform:none;grid-column:1 / -1;order:4;margin:0 auto;max-width:100%;white-space:normal;text-align:center;font-size:10px}.preview-notice {align-items:flex-start;flex-direction:column}.export-status {font-size:10px}.foot { flex-direction:column; gap:8px } }
     @media (prefers-reduced-motion:reduce) { *,*:before,*:after { transition:none!important;scroll-behavior:auto!important } }
     @media print { body { background:white } .topbar,.intro .site-link,.toolbar,.foot { display:none!important } main { width:100%; padding:0 } .intro { margin:0 0 14px } .intro h1 { font-size:24px } .board { border:0; background:#f0efe9; min-height:0; padding:18px } .devices { min-height:0 } .desktop-frame { width:54vw; height:350px } .device.hidden { display:flex!important } }
   </style>
@@ -118,7 +102,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="brand-mark">P</span> показ</div>
-    <div class="top-right"><span class="saved" id="saved">Композиция сохраняется в браузере</span><button class="btn" id="print">Скачать PDF</button></div>
+    <div class="top-right"><span class="saved" id="saved">Ссылка сохраняется в браузере</span><button class="btn" id="print">Скачать PDF</button></div>
   </header>
   <main>
     <section class="intro">
@@ -130,40 +114,7 @@
       <div class="view-actions"><button class="btn" id="openSite">Открыть сайт ↗</button><button class="btn primary" id="refresh">Обновить просмотр</button></div>
     </section>
     <div class="device-toggles"><strong>Показать:</strong><label><input type="checkbox" data-toggle="desktop" checked> Ноутбук</label><label><input type="checkbox" data-toggle="tablet" checked> Планшет</label><label><input type="checkbox" data-toggle="phone" checked> Телефон</label><span class="drag-hint">Перетаскивайте устройства за подпись</span><button class="reset-layout" id="resetLayout">Сбросить композицию</button></div>
-    <div class="editor-settings">
-      <details class="settings-panel" open>
-        <summary>Холст и фон</summary>
-        <div class="setting-grid">
-          <label>Формат холста<select id="canvasPreset"><option value="1440x900">Презентация · 16:10</option><option value="1920x1080">Широкий · 16:9</option><option value="1080x1080">Квадрат · 1:1</option><option value="1080x1350">Портрет · 4:5</option><option value="1200x630">Обложка · 1.9:1</option><option value="custom">Свои размеры</option></select></label>
-          <label>Ширина, px<input id="canvasWidth" type="number" min="320" max="5000" value="1440"></label>
-          <label>Высота, px<input id="canvasHeight" type="number" min="320" max="5000" value="900"></label>
-          <label>Фон<select id="backgroundMode"><option value="solid">Цвет</option><option value="gradient">Градиент</option><option value="image">Изображение</option></select></label>
-          <label id="solidColorControl">Цвет холста<input id="backgroundColor" type="color" value="#b6bec2"></label>
-          <label id="gradientStartControl" hidden>Начальный цвет<input id="gradientStart" type="color" value="#b6bec2"></label>
-          <label id="gradientEndControl" hidden>Конечный цвет<input id="gradientEnd" type="color" value="#e9d9c6"></label>
-          <label id="gradientAngleControl" hidden>Угол градиента, °<input id="gradientAngle" type="number" min="0" max="360" value="135"></label>
-          <label class="wide" id="imageUrlControl" hidden>Ссылка на изображение<input id="backgroundImageUrl" type="url" placeholder="https://example.com/background.jpg"></label>
-          <label class="wide" id="imageFileControl" hidden>Или загрузить файл<input id="backgroundImageFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
-          <label id="imageFitControl" hidden>Вписать изображение<select id="backgroundFit"><option value="cover">Заполнить холст</option><option value="contain">Показать целиком</option></select></label>
-          <label id="imageXControl" hidden>Положение по горизонтали<input id="backgroundX" type="range" min="0" max="100" value="50"></label>
-          <label id="imageYControl" hidden>Положение по вертикали<input id="backgroundY" type="range" min="0" max="100" value="50"></label>
-          <label id="imageOverlayControl" hidden>Затемнение фона<input id="backgroundOverlay" type="range" min="0" max="70" value="0"></label>
-          <label>Поля вокруг устройств, px<input id="canvasPadding" type="range" min="0" max="120" value="24"></label>
-          <label>Расстояние между устройствами, px<input id="deviceGap" type="range" min="0" max="80" value="18"></label>
-          <div class="setting-actions"><button class="btn" id="transparentBg" type="button" aria-pressed="false">Прозрачный фон</button><button class="btn primary" id="downloadPng" type="button">Скачать PNG ↓</button><button class="btn" id="shareLink" type="button">Скопировать ссылку</button></div>
-          <span class="export-note">Снимок вкладки включает фон и содержимое сайтов. Для захвата разрешите браузеру доступ.</span>
-          <span class="export-status" id="exportStatus" role="status" aria-live="polite"></span>
-        </div>
-      </details>
-      <details class="settings-panel">
-        <summary>Размеры и ориентация экранов</summary>
-        <div class="device-settings">
-          <div class="device-setting" data-device-setting="desktop"><strong>Ноутбук</strong><label>Размер<select class="device-preset"><option value="1280x800">1280 × 800</option><option value="1366x768">1366 × 768</option><option value="1440x900" selected>1440 × 900</option><option value="1920x1080">1920 × 1080</option><option value="custom">Произвольный</option></select></label><label>Ширина<input class="device-width" type="number" min="240" max="3000" value="1440"></label><label>Высота<input class="device-height" type="number" min="240" max="3000" value="900"></label><button class="btn rotate-device" type="button">Повернуть ↻</button></div>
-          <div class="device-setting" data-device-setting="tablet"><strong>Планшет</strong><label>Размер<select class="device-preset"><option value="768x1024" selected>768 × 1024</option><option value="820x1180">820 × 1180</option><option value="1024x1366">1024 × 1366</option><option value="custom">Произвольный</option></select></label><label>Ширина<input class="device-width" type="number" min="240" max="3000" value="768"></label><label>Высота<input class="device-height" type="number" min="240" max="3000" value="1024"></label><button class="btn rotate-device" type="button">Повернуть ↻</button></div>
-          <div class="device-setting" data-device-setting="phone"><strong>Телефон</strong><label>Размер<select class="device-preset"><option value="360x800">360 × 800</option><option value="375x812">375 × 812</option><option value="390x844" selected>390 × 844</option><option value="430x932">430 × 932</option><option value="custom">Произвольный</option></select></label><label>Ширина<input class="device-width" type="number" min="240" max="3000" value="390"></label><label>Высота<input class="device-height" type="number" min="240" max="3000" value="844"></label><button class="btn rotate-device" type="button">Повернуть ↻</button></div>
-        </div>
-      </details>
-    </div>
+    <div class="canvas-controls" aria-label="Настройки фона и экспорта"><label for="backgroundColor">Фон холста <input id="backgroundColor" type="color" value="#b6bec2"></label><button class="btn" id="transparentBg" type="button" aria-pressed="false">Прозрачный фон</button><button class="btn primary" id="downloadPng" type="button">Скачать PNG ↓</button><span class="export-note">Для захвата страницы выберите эту вкладку в окне браузера.</span><span class="export-status" id="exportStatus" role="status" aria-live="polite"></span></div>
     <section class="board">
       <div class="board-head"><span>Предпросмотр адаптивности</span><span id="domain">Демо-макет</span></div>
       <div class="devices">
@@ -179,96 +130,7 @@
   <script>
     const urlInput = document.querySelector('#urlInput');
     const frames = [...document.querySelectorAll('iframe')];
-    const baseViewports = { desktop: [1440, 900], tablet: [768, 1024], phone: [390, 844] };
-    const viewports = { desktop: [...baseViewports.desktop], tablet: [...baseViewports.tablet], phone: [...baseViewports.phone] };
-    const board = document.querySelector('.board');
-    const transparentButton = document.querySelector('#transparentBg');
-    const appState = {
-      v: 1, url: '', preview: 'demo',
-      canvas: { width: 1440, height: 900, padding: 24, gap: 18, transparent: false, background: { type: 'solid', color: '#b6bec2', start: '#b6bec2', end: '#e9d9c6', angle: 135, image: '', fit: 'cover', x: 50, y: 50, overlay: 0 } },
-      devices: { desktop: { width: 1440, height: 900, visible: true, x: 0, y: 0 }, tablet: { width: 768, height: 1024, visible: true, x: 0, y: 0 }, phone: { width: 390, height: 844, visible: true, x: 0, y: 0 } }
-    };
-    let saveTimer;
-    function saveState() {
-      try { localStorage.setItem('showcaseState', JSON.stringify(appState)); } catch {}
-    }
-    function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 250); }
-    function updateScreen(key) {
-      const config = appState.devices[key];
-      const [width, height] = [config.width, config.height];
-      viewports[key][0] = width; viewports[key][1] = height;
-      const device = document.querySelector(`.device[data-device="${key}"]`);
-      const screen = device.querySelector('.screen');
-      const baseVisualWidth = { desktop: 680, tablet: 245, phone: 156 }[key];
-      const visualWidth = key === 'desktop' ? baseVisualWidth : Math.max(100, Math.min(520, baseVisualWidth * width / baseViewports[key][0]));
-      screen.style.width = `min(${visualWidth}px, 100%)`;
-      screen.style.aspectRatio = `${width} / ${height}`;
-      device.querySelector('.device-label span').textContent = `${width} × ${height}`;
-      const controls = document.querySelector(`[data-device-setting="${key}"]`);
-      controls.querySelector('.device-width').value = width;
-      controls.querySelector('.device-height').value = height;
-      const selected = controls.querySelector('.device-preset');
-      const preset = [...selected.options].find(option => option.value === `${width}x${height}`);
-      selected.value = preset ? preset.value : 'custom';
-      requestAnimationFrame(fitFrames);
-    }
-    function applyCanvasSettings() {
-      const c = appState.canvas;
-      board.style.setProperty('--canvas-padding', `${c.padding}px`);
-      board.style.setProperty('--canvas-ratio', `${c.width} / ${c.height}`);
-      document.querySelector('.devices').style.gap = `${c.gap}px`;
-      document.querySelector('#canvasWidth').value = c.width;
-      document.querySelector('#canvasHeight').value = c.height;
-      document.querySelector('#canvasPadding').value = c.padding;
-      document.querySelector('#deviceGap').value = c.gap;
-      const preset = document.querySelector('#canvasPreset');
-      preset.value = [...preset.options].some(option => option.value === `${c.width}x${c.height}`) ? `${c.width}x${c.height}` : 'custom';
-      document.querySelector('#backgroundMode').value = c.background.type;
-      document.querySelector('#backgroundColor').value = c.background.color;
-      document.querySelector('#gradientStart').value = c.background.start;
-      document.querySelector('#gradientEnd').value = c.background.end;
-      document.querySelector('#gradientAngle').value = c.background.angle;
-      document.querySelector('#backgroundFit').value = c.background.fit;
-      document.querySelector('#backgroundX').value = c.background.x;
-      document.querySelector('#backgroundY').value = c.background.y;
-      document.querySelector('#backgroundOverlay').value = c.background.overlay;
-      document.querySelector('#backgroundImageUrl').value = c.background.image.startsWith('http') ? c.background.image : '';
-      const type = c.background.type;
-      document.querySelector('#solidColorControl').hidden = type !== 'solid';
-      document.querySelector('#gradientStartControl').hidden = type !== 'gradient';
-      document.querySelector('#gradientEndControl').hidden = type !== 'gradient';
-      document.querySelector('#gradientAngleControl').hidden = type !== 'gradient';
-      document.querySelector('#imageUrlControl').hidden = type !== 'image';
-      document.querySelector('#imageFileControl').hidden = type !== 'image';
-      document.querySelector('#imageFitControl').hidden = type !== 'image';
-      document.querySelector('#imageXControl').hidden = type !== 'image';
-      document.querySelector('#imageYControl').hidden = type !== 'image';
-      document.querySelector('#imageOverlayControl').hidden = type !== 'image';
-      board.classList.toggle('transparent', c.transparent);
-      transparentButton.setAttribute('aria-pressed', String(c.transparent));
-      if (c.transparent) {
-        board.style.backgroundImage = '';
-        board.style.backgroundColor = 'transparent';
-        board.style.backgroundSize = '';
-        board.style.backgroundPosition = '';
-      } else {
-        board.classList.remove('transparent');
-        if (type === 'gradient') board.style.backgroundImage = `linear-gradient(${c.background.angle}deg, ${c.background.start}, ${c.background.end})`;
-        else if (type === 'image' && c.background.image) board.style.backgroundImage = `linear-gradient(rgba(20,28,28,${c.background.overlay / 100}), rgba(20,28,28,${c.background.overlay / 100})), url("${c.background.image}")`;
-        else board.style.backgroundImage = '';
-        board.style.backgroundColor = c.background.color;
-        board.style.backgroundSize = type === 'image' ? `100% 100%, ${c.background.fit}` : '';
-        board.style.backgroundPosition = type === 'image' ? `center, ${c.background.x}% ${c.background.y}%` : 'center';
-      }
-      requestAnimationFrame(fitFrames);
-    }
-    function applyPositions() {
-      for (const [key, position] of Object.entries(appState.devices)) {
-        const device = document.querySelector(`.device[data-device="${key}"]`);
-        device.style.setProperty('--dx', `${position.x * board.clientWidth}px`);
-        device.style.setProperty('--dy', `${position.y * board.clientHeight}px`);
-      }
-    }
+    const viewports = { desktop: [1440, 900], tablet: [768, 1024], phone: [390, 844] };
     const demoDocument = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;background:#f6f4ee;color:#192326;font:15px/1.5 Arial,sans-serif}.nav{height:66px;padding:0 7%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d9ddd6}.brand{font-size:12px;font-weight:800;letter-spacing:.12em}.brand b{color:#d66a42}.links{display:flex;gap:22px;font-size:11px;color:#64706b}.nav button,.cta{border:0;border-radius:3px;background:#1e2928;color:white;padding:11px 16px;font-size:11px;font-weight:700}.hero{min-height:480px;padding:9% 8%;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:5%;background:radial-gradient(ellipse at 80% 42%,#dce5dc,transparent 42%),#f6f4ee}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c26342;font-weight:700}.hero h1{font:500 clamp(34px,5vw,68px)/.98 Georgia,serif;letter-spacing:-.05em;margin:20px 0;max-width:600px}.hero p{max-width:380px;color:#67716a;font-size:14px}.cta{display:inline-block;margin-top:12px;text-decoration:none;background:#d66a42}.art{height:310px;position:relative;border-radius:48% 48% 8px 8px;background:linear-gradient(145deg,#c5d2c6,#e8d8c4 58%,#d39168);overflow:hidden}.sun{position:absolute;width:110px;height:110px;border-radius:50%;background:#f7e9c8;right:18%;top:16%;box-shadow:0 0 60px #fff8}.hill{position:absolute;left:-5%;right:-5%;bottom:-18%;height:60%;border-radius:50% 50% 0 0;background:#61746b;transform:rotate(-8deg)}.hill:after{content:'';position:absolute;width:120%;height:70%;top:34%;left:20%;border-radius:50% 50% 0 0;background:#344b48;transform:rotate(12deg)}.note{position:absolute;bottom:16px;left:16px;background:#f6f4ee;padding:9px 12px;font-size:10px;letter-spacing:.08em}.section{padding:44px 8%;background:#fff}.section small{color:#c26342;letter-spacing:.14em;text-transform:uppercase}.section h2{font:500 30px Georgia,serif;margin:10px 0 24px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{padding:16px;background:#f1f2ec;min-height:100px}.card b{display:block;font:18px Georgia,serif;margin-bottom:7px}.card span{font-size:11px;color:#67716a}@media(max-width:620px){.nav{height:54px;padding:0 6%}.links{display:none}.nav button{padding:9px;font-size:9px}.hero{grid-template-columns:1fr;gap:24px;padding:13% 8%;min-height:0}.hero h1{font-size:42px}.hero p{font-size:13px}.art{height:210px}.section{padding:30px 8%}.section h2{font-size:25px}.cards{grid-template-columns:1fr}.card{min-height:75px}}</style><body><header class="nav"><div class="brand"><b>●</b> ВАШ БРЕНД</div><div class="links"><span>О проекте</span><span>Услуги</span><span>Контакты</span></div><button>Связаться</button></header><main><section class="hero"><div><div class="eyebrow">Новый взгляд на привычное</div><h1>Идеи становятся проектами</h1><p>Это демонстрационный макет. Вставьте адрес своего сайта, чтобы посмотреть его на экранах разных устройств.</p><a class="cta" href="#about">Узнать больше ↗</a></div><div class="art"><div class="sun"></div><div class="hill"></div><div class="note">ПРИМЕР АДАПТИВНОГО ДИЗАЙНА</div></div></section><section class="section" id="about"><small>Наш подход</small><h2>Продумано для каждого экрана</h2><div class="cards"><div class="card"><b>01 — Идея</b><span>Понятная подача и свой характер.</span></div><div class="card"><b>02 — Детали</b><span>Ритм, пространство и типографика.</span></div><div class="card"><b>03 — Результат</b><span>Удобный опыт на любом устройстве.</span></div></div></section></main></body></html>`;
     function fitFrames() {
       frames.forEach(frame => {
@@ -285,8 +147,6 @@
         const url = cleanUrl(value);
         const normalized = url.href;
         if (updateAddress) urlInput.value = normalized;
-        appState.url = normalized;
-        appState.preview = 'site';
         document.querySelector('#domain').textContent = url.hostname;
         document.querySelector('#openBlockedSite').href = normalized;
         document.querySelector('#projectTitle').textContent = url.hostname.replace(/^www\./,'');
@@ -297,9 +157,8 @@
         document.querySelector('#openBlockedSite').href = normalized;
         document.querySelector('#openBlockedSite').hidden = false;
         requestAnimationFrame(fitFrames);
-        if (updateAddress && !location.hash.startsWith('#s=')) history.replaceState({}, '', '?url=' + encodeURIComponent(normalized));
+        history.replaceState({}, '', '?url=' + encodeURIComponent(normalized));
         localStorage.setItem('showcaseUrl', normalized);
-        scheduleSave();
         return normalized;
       } catch { urlInput.focus(); urlInput.setCustomValidity('Введите корректную ссылку на сайт'); urlInput.reportValidity(); return null; }
     }
@@ -307,8 +166,6 @@
       const requested = urlInput.value.trim();
       let site = null;
       try { if (requested) site = cleanUrl(requested); } catch {}
-      appState.url = site ? site.href : '';
-      appState.preview = 'demo';
       frames.forEach(frame => { frame.removeAttribute('src'); frame.srcdoc = demoDocument; });
       document.querySelector('#domain').textContent = site ? `${site.hostname} · демо-макет` : 'Демо-макет';
       document.querySelector('#projectTitle').textContent = site ? site.hostname.replace(/^www\./,'') : 'Ваш новый сайт';
@@ -318,7 +175,6 @@
       if (site) document.querySelector('#openBlockedSite').href = site.href;
       document.querySelector('#previewNotice').hidden = false;
       requestAnimationFrame(fitFrames);
-      scheduleSave();
     }
     document.querySelector('#showDemo').addEventListener('click', showDemo);
     document.querySelector('#urlForm').addEventListener('submit', e => { e.preventDefault(); urlInput.setCustomValidity(''); loadSite(urlInput.value); });
@@ -340,132 +196,30 @@
     }));
     document.querySelectorAll('[data-toggle]').forEach(input => input.addEventListener('change', () => {
       enabled[input.dataset.toggle] = input.checked;
-      appState.devices[input.dataset.toggle].visible = input.checked;
       applyVisibility();
-      scheduleSave();
     }));
     document.querySelector('#resetLayout').addEventListener('click', () => {
       document.querySelectorAll('.device').forEach(device => {
         device.style.setProperty('--dx', '0px'); device.style.setProperty('--dy', '0px'); device.style.zIndex = '';
-        appState.devices[device.dataset.device].x = 0; appState.devices[device.dataset.device].y = 0;
       });
-      scheduleSave();
     });
+    const board = document.querySelector('.board');
     const bgPicker = document.querySelector('#backgroundColor');
-    const canvasPreset = document.querySelector('#canvasPreset');
-    const backgroundMode = document.querySelector('#backgroundMode');
-    const updateCanvas = () => { applyCanvasSettings(); scheduleSave(); };
-    canvasPreset.addEventListener('change', () => {
-      if (canvasPreset.value === 'custom') return;
-      const [width, height] = canvasPreset.value.split('x').map(Number);
-      appState.canvas.width = width; appState.canvas.height = height; updateCanvas();
-    });
-    ['canvasWidth','canvasHeight'].forEach(id => document.querySelector(`#${id}`).addEventListener('input', event => {
-      const key = id === 'canvasWidth' ? 'width' : 'height';
-      appState.canvas[key] = Math.max(320, Math.min(5000, Number(event.target.value) || 320)); updateCanvas();
-    }));
-    document.querySelector('#canvasPadding').addEventListener('input', event => { appState.canvas.padding = Number(event.target.value); updateCanvas(); });
-    document.querySelector('#deviceGap').addEventListener('input', event => { appState.canvas.gap = Number(event.target.value); updateCanvas(); });
-    backgroundMode.addEventListener('change', () => { appState.canvas.background.type = backgroundMode.value; updateCanvas(); });
-    bgPicker.addEventListener('input', () => { appState.canvas.background.color = bgPicker.value; appState.canvas.background.type = 'solid'; updateCanvas(); });
-    document.querySelector('#gradientStart').addEventListener('input', event => { appState.canvas.background.start = event.target.value; updateCanvas(); });
-    document.querySelector('#gradientEnd').addEventListener('input', event => { appState.canvas.background.end = event.target.value; updateCanvas(); });
-    document.querySelector('#gradientAngle').addEventListener('input', event => { appState.canvas.background.angle = Math.max(0, Math.min(360, Number(event.target.value) || 0)); updateCanvas(); });
-    document.querySelector('#backgroundFit').addEventListener('change', event => { appState.canvas.background.fit = event.target.value; updateCanvas(); });
-    document.querySelector('#backgroundX').addEventListener('input', event => { appState.canvas.background.x = Number(event.target.value); updateCanvas(); });
-    document.querySelector('#backgroundY').addEventListener('input', event => { appState.canvas.background.y = Number(event.target.value); updateCanvas(); });
-    document.querySelector('#backgroundOverlay').addEventListener('input', event => { appState.canvas.background.overlay = Number(event.target.value); updateCanvas(); });
-    document.querySelector('#backgroundImageUrl').addEventListener('change', event => {
-      const value = event.target.value.trim();
-      try { const imageUrl = new URL(value); if (!['https:','http:'].includes(imageUrl.protocol)) throw new Error(); appState.canvas.background.image = imageUrl.href; appState.canvas.background.type = 'image'; updateCanvas(); }
-      catch { if (value) document.querySelector('#exportStatus').textContent = 'Укажите прямую ссылку на изображение с http или https.'; }
-    });
-    document.querySelector('#backgroundImageFile').addEventListener('change', async event => {
-      const file = event.target.files?.[0]; if (!file) return;
-      try {
-        const bitmap = await createImageBitmap(file);
-        const ratio = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-        const canvas = document.createElement('canvas'); canvas.width = Math.round(bitmap.width * ratio); canvas.height = Math.round(bitmap.height * ratio);
-        canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height); bitmap.close?.();
-        let image = canvas.toDataURL('image/webp', .78);
-        if (image.length > 220000) image = canvas.toDataURL('image/webp', .58);
-        appState.canvas.background.image = image; appState.canvas.background.type = 'image';
-        document.querySelector('#exportStatus').textContent = image.length > 220000 ? 'Фон сохранён локально. Для ссылки используйте URL изображения, файл слишком большой.' : '';
-        updateCanvas();
-      } catch { document.querySelector('#exportStatus').textContent = 'Не удалось обработать изображение. Выберите PNG, JPG или WebP.'; }
-    });
-    transparentButton.addEventListener('click', () => { appState.canvas.transparent = !appState.canvas.transparent; applyCanvasSettings(); scheduleSave(); });
-    document.querySelectorAll('[data-device-setting]').forEach(row => {
-      const key = row.dataset.deviceSetting;
-      row.querySelector('.device-preset').addEventListener('change', event => {
-        if (event.target.value === 'custom') return;
-        const [width, height] = event.target.value.split('x').map(Number);
-        appState.devices[key].width = width; appState.devices[key].height = height; updateScreen(key); scheduleSave();
-      });
-      [['.device-width','width'],['.device-height','height']].forEach(([selector, dimension]) => row.querySelector(selector).addEventListener('input', event => {
-        appState.devices[key][dimension] = Math.max(240, Math.min(3000, Number(event.target.value) || 240)); updateScreen(key); scheduleSave();
-      }));
-      row.querySelector('.rotate-device').addEventListener('click', () => {
-        [appState.devices[key].width, appState.devices[key].height] = [appState.devices[key].height, appState.devices[key].width]; updateScreen(key); scheduleSave();
-      });
-    });
-    function encodeState(value) {
-      const bytes = new TextEncoder().encode(JSON.stringify(value)); let binary = '';
-      for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-      return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const transparentButton = document.querySelector('#transparentBg');
+    function setBoardBackground(color, transparent = false) {
+      board.classList.toggle('transparent', transparent);
+      board.style.setProperty('--board-bg', color);
+      bgPicker.value = color;
+      transparentButton.setAttribute('aria-pressed', String(transparent));
+      localStorage.setItem('showcaseBg', color);
+      localStorage.setItem('showcaseBgTransparent', String(transparent));
     }
-    function decodeState(value) {
-      const binary = atob(value.replace(/-/g,'+').replace(/_/g,'/') + '='.repeat((4 - value.length % 4) % 4));
-      return JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, char => char.charCodeAt(0))));
-    }
-    document.querySelector('#shareLink').addEventListener('click', async () => {
-      const image = appState.canvas.background.image;
-      if (image.startsWith('data:') && image.length > 220000) { document.querySelector('#exportStatus').textContent = 'Изображение слишком велико для ссылки. Укажите его URL в настройках фона.'; return; }
-      const shareUrl = `${location.origin}${location.pathname}#s=${encodeState(appState)}`;
-      try { await navigator.clipboard.writeText(shareUrl); document.querySelector('#exportStatus').textContent = 'Ссылка на всю композицию скопирована.'; }
-      catch { window.prompt('Скопируйте ссылку на композицию:', shareUrl); }
-    });
-    function applyState(value) {
-      const state = value && value.v === 1 ? value : null; if (!state) return false;
-      if (state.url) { try { appState.url = cleanUrl(state.url).href; } catch { appState.url = ''; } }
-      appState.preview = state.preview === 'site' ? 'site' : 'demo';
-      const c = state.canvas || {};
-      appState.canvas.width = Math.max(320, Math.min(5000, Number(c.width) || 1440));
-      appState.canvas.height = Math.max(320, Math.min(5000, Number(c.height) || 900));
-      appState.canvas.padding = Math.max(0, Math.min(120, Number.isFinite(Number(c.padding)) ? Number(c.padding) : 24));
-      appState.canvas.gap = Math.max(0, Math.min(80, Number.isFinite(Number(c.gap)) ? Number(c.gap) : 18));
-      appState.canvas.transparent = Boolean(c.transparent);
-      const bg = c.background || {};
-      appState.canvas.background.type = ['solid','gradient','image'].includes(bg.type) ? bg.type : 'solid';
-      const safeColor = (color, fallback) => /^#[0-9a-f]{6}$/i.test(color || '') ? color : fallback;
-      appState.canvas.background.color = safeColor(bg.color, '#b6bec2');
-      appState.canvas.background.start = safeColor(bg.start, '#b6bec2');
-      appState.canvas.background.end = safeColor(bg.end, '#e9d9c6');
-      appState.canvas.background.angle = Math.max(0, Math.min(360, Number.isFinite(Number(bg.angle)) ? Number(bg.angle) : 135));
-      appState.canvas.background.fit = bg.fit === 'contain' ? 'contain' : 'cover';
-      appState.canvas.background.x = Math.max(0,Math.min(100,Number.isFinite(Number(bg.x)) ? Number(bg.x) : 50));
-      appState.canvas.background.y = Math.max(0,Math.min(100,Number.isFinite(Number(bg.y)) ? Number(bg.y) : 50));
-      appState.canvas.background.overlay = Math.max(0,Math.min(70,Number.isFinite(Number(bg.overlay)) ? Number(bg.overlay) : 0));
-      let image = bg.image || '';
-      try { if (image.startsWith('data:image/webp;base64,')) {} else if (image) { const parsed = new URL(image); if (!['http:','https:'].includes(parsed.protocol)) image = ''; else image = parsed.href; } } catch { image = ''; }
-      appState.canvas.background.image = image;
-      for (const key of Object.keys(appState.devices)) {
-        const d = state.devices?.[key] || {};
-        appState.devices[key] = { width: Math.max(240,Math.min(3000,Number(d.width)||baseViewports[key][0])), height: Math.max(240,Math.min(3000,Number(d.height)||baseViewports[key][1])), visible: d.visible !== false, x: Math.max(-1,Math.min(1,Number.isFinite(Number(d.x)) ? Number(d.x) : 0)), y: Math.max(-1,Math.min(1,Number.isFinite(Number(d.y)) ? Number(d.y) : 0)) };
-        enabled[key] = appState.devices[key].visible;
-        document.querySelector(`[data-toggle="${key}"]`).checked = enabled[key];
-        updateScreen(key);
-      }
-      urlInput.value = appState.url;
-      applyCanvasSettings(); applyVisibility(); applyPositions();
-      if (appState.preview === 'site' && appState.url) loadSite(appState.url, false); else showDemo();
-      return true;
-    }
+    bgPicker.addEventListener('input', () => setBoardBackground(bgPicker.value, false));
+    transparentButton.addEventListener('click', () => setBoardBackground(bgPicker.value, !board.classList.contains('transparent')));
+    setBoardBackground(localStorage.getItem('showcaseBg') || '#b6bec2', localStorage.getItem('showcaseBgTransparent') === 'true');
     document.querySelector('#downloadPng').addEventListener('click', async () => {
       const rect = board.getBoundingClientRect();
-      const scale = 2, width = appState.canvas.width, height = appState.canvas.height;
-      const fitScale = Math.min(width / rect.width, height / rect.height);
-      const offsetX = (width - rect.width * fitScale) / 2, offsetY = (height - rect.height * fitScale) / 2;
+      const scale = 2, width = Math.round(rect.width), height = Math.round(rect.height);
       const status = document.querySelector('#exportStatus');
       status.textContent = 'Выберите вкладку с этим макетом в системном окне захвата.';
       if (navigator.mediaDevices?.getDisplayMedia) {
@@ -481,13 +235,13 @@
           const sx=rect.left*video.videoWidth/window.innerWidth, sy=rect.top*video.videoHeight/window.innerHeight;
           const sw=rect.width*video.videoWidth/window.innerWidth, sh=rect.height*video.videoHeight/window.innerHeight;
           const canvas=document.createElement('canvas'); canvas.width=width*scale; canvas.height=height*scale;
-          const context=canvas.getContext('2d'); context.drawImage(video,sx,sy,sw,sh,offsetX*scale,offsetY*scale,rect.width*fitScale*scale,rect.height*fitScale*scale);
+          const context=canvas.getContext('2d'); context.drawImage(video,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
           if (board.classList.contains('transparent')) {
             const mask=document.createElement('canvas'); mask.width=canvas.width; mask.height=canvas.height;
             const maskContext=mask.getContext('2d'); maskContext.fillStyle='#000';
             document.querySelectorAll('.device:not(.hidden)').forEach(device=>{
               const d=device.getBoundingClientRect();
-              const x=(offsetX+(d.left-rect.left)*fitScale)*scale, y=(offsetY+(d.top-rect.top)*fitScale)*scale, w=d.width*fitScale*scale, h=d.height*fitScale*scale;
+              const x=(d.left-rect.left)*scale, y=(d.top-rect.top)*scale, w=d.width*scale, h=d.height*scale;
               maskContext.beginPath(); maskContext.roundRect(x,y,w,h,10); maskContext.fill();
             });
             context.globalCompositeOperation='destination-in'; context.drawImage(mask,0,0); context.globalCompositeOperation='source-over';
@@ -504,34 +258,20 @@
         }
       } else status.textContent='Захват вкладки не поддерживается. PNG будет содержать векторные рамки.';
       const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
-      const bg = appState.canvas.background;
-      let defs = '';
-      let shapes = '';
-      if (!appState.canvas.transparent && bg.type === 'gradient') {
-        defs = `<defs><linearGradient id="canvasGradient" x1="0" y1="0" x2="1" y2="1" gradientTransform="rotate(${bg.angle} .5 .5)"><stop offset="0%" stop-color="${bg.start}"/><stop offset="100%" stop-color="${bg.end}"/></linearGradient></defs>`;
-        shapes += `<rect width="${width}" height="${height}" fill="url(#canvasGradient)"/>`;
-      } else if (!appState.canvas.transparent && bg.type === 'image' && bg.image.startsWith('data:image/webp;base64,')) {
-        const ax = bg.x < 34 ? 'xMin' : bg.x > 66 ? 'xMax' : 'xMid', ay = bg.y < 34 ? 'YMin' : bg.y > 66 ? 'YMax' : 'YMid';
-        shapes += `<rect width="${width}" height="${height}" fill="${bg.color}"/><image href="${bg.image}" width="${width}" height="${height}" preserveAspectRatio="${ax}${ay} ${bg.fit === 'contain' ? 'meet' : 'slice'}"/>`;
-        if (bg.overlay) shapes += `<rect width="${width}" height="${height}" fill="#141c1c" opacity="${bg.overlay / 100}"/>`;
-      } else if (!appState.canvas.transparent) {
-        shapes += `<rect width="${width}" height="${height}" fill="${bg.color}"/>`;
-        if (bg.type === 'image') status.textContent = 'PNG сохранён с цветным фоном: для изображения разрешите захват вкладки.';
-      }
-      const px = value => offsetX + value * fitScale, py = value => offsetY + value * fitScale, ps = value => value * fitScale;
-      shapes += `<text x="${px(28)}" y="${py(36)}" fill="#d8dee1" font-family="monospace" font-size="${ps(12)}" letter-spacing="${ps(1.5)}">ПРЕДПРОСМОТР АДАПТИВНОСТИ</text><text x="${width-px(28)}" y="${py(36)}" text-anchor="end" fill="#d8dee1" font-family="monospace" font-size="${ps(12)}">${esc(document.querySelector('#domain').textContent)}</text>`;
+      const rgb = bgPicker.value;
+      let shapes = board.classList.contains('transparent') ? '' : `<rect width="100%" height="100%" fill="${rgb}"/>`;
+      shapes += `<text x="28" y="36" fill="#d8dee1" font-family="monospace" font-size="12" letter-spacing="1.5">ПРЕДПРОСМОТР АДАПТИВНОСТИ</text><text x="${width-28}" y="36" text-anchor="end" fill="#d8dee1" font-family="monospace" font-size="12">${esc(document.querySelector('#domain').textContent)}</text>`;
       document.querySelectorAll('.device:not(.hidden)').forEach(device => {
         const screen = device.querySelector('.screen').getBoundingClientRect();
         const label = device.querySelector('.device-label').getBoundingClientRect();
-        const x=px(screen.left-rect.left), y=py(screen.top-rect.top), w=ps(screen.width), h=ps(screen.height);
-        const r=ps(device.dataset.device==='phone'?22:device.dataset.device==='tablet'?14:6);
-        shapes += `<rect x="${x-ps(8)}" y="${y-ps(8)}" width="${w+ps(16)}" height="${h+ps(16)}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="${ps(2)}"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(1,r-ps(7))}" fill="#f2f4f4"/>`;
-        if(device.dataset.device==='phone') shapes += `<rect x="${x+w/2-ps(24)}" y="${y-ps(7)}" width="${ps(48)}" height="${ps(12)}" rx="${ps(6)}" fill="#30383c"/>`;
-        if(device.dataset.device==='desktop') shapes += `<rect x="${x+w*.38}" y="${y+h+ps(8)}" width="${w*.24}" height="${ps(8)}" rx="${ps(3)}" fill="#98a1a4"/>`;
-        const lx=px(label.left-rect.left), ly=py(label.top-rect.top), lw=ps(label.width), lh=ps(label.height);
-        shapes += `<rect x="${lx}" y="${ly}" width="${lw}" height="${lh}" rx="${ps(4)}" fill="#313a3e" stroke="#6b777c"/><text x="${lx+ps(12)}" y="${ly+lh/2+ps(4)}" fill="#f2f4f4" font-family="Arial,sans-serif" font-size="${ps(12)}" font-weight="700">${esc(device.querySelector('.device-label strong').textContent)}</text><text x="${lx+lw-ps(9)}" y="${ly+lh/2+ps(4)}" text-anchor="end" fill="#d8dee1" font-family="monospace" font-size="${ps(10)}">${esc(device.querySelector('.device-label span').textContent)}</text>`;
+        const x=screen.left-rect.left, y=screen.top-rect.top, w=screen.width, h=screen.height;
+        const r=device.dataset.device==='phone'?22:device.dataset.device==='tablet'?14:6;
+        shapes += `<rect x="${x-8}" y="${y-8}" width="${w+16}" height="${h+16}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(1,r-7)}" fill="#f2f4f4"/>`;
+        if(device.dataset.device==='phone') shapes += `<rect x="${x+w/2-24}" y="${y-7}" width="48" height="12" rx="6" fill="#30383c"/>`;
+        if(device.dataset.device==='desktop') shapes += `<rect x="${x+w*.38}" y="${y+h+8}" width="${w*.24}" height="8" rx="3" fill="#98a1a4"/>`;
+        shapes += `<rect x="${label.left-rect.left}" y="${label.top-rect.top}" width="${label.width}" height="${label.height}" rx="4" fill="#313a3e" stroke="#6b777c"/><text x="${label.left-rect.left+12}" y="${label.top-rect.top+label.height/2+4}" fill="#f2f4f4" font-family="Arial,sans-serif" font-size="12" font-weight="700">${esc(device.querySelector('.device-label strong').textContent)}</text><text x="${label.right-rect.left-9}" y="${label.top-rect.top+label.height/2+4}" text-anchor="end" fill="#d8dee1" font-family="monospace" font-size="10">${esc(device.querySelector('.device-label span').textContent)}</text>`;
       });
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width*scale}" height="${height*scale}" viewBox="0 0 ${width} ${height}">${defs}<g>${shapes}</g></svg>`;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width*scale}" height="${height*scale}" viewBox="0 0 ${width} ${height}"><g>${shapes}</g></svg>`;
       const image = new Image(); image.onload = () => {
         const canvas = document.createElement('canvas'); canvas.width=width*scale; canvas.height=height*scale;
         const context=canvas.getContext('2d'); context.drawImage(image,0,0); canvas.toBlob(blob=>{
@@ -551,39 +291,18 @@
       });
       device.addEventListener('pointermove', event => {
         if (!drag) return;
-        const dx = drag.dx + event.clientX - drag.x, dy = drag.dy + event.clientY - drag.y;
-        device.style.setProperty('--dx', dx + 'px');
-        device.style.setProperty('--dy', dy + 'px');
-        appState.devices[device.dataset.device].x = dx / Math.max(1, board.clientWidth);
-        appState.devices[device.dataset.device].y = dy / Math.max(1, board.clientHeight);
-        scheduleSave();
+        device.style.setProperty('--dx', (drag.dx + event.clientX - drag.x) + 'px');
+        device.style.setProperty('--dy', (drag.dy + event.clientY - drag.y) + 'px');
       });
-      const stop = () => { drag = null; scheduleSave(); };
+      const stop = () => { drag = null; };
       device.addEventListener('pointerup', stop);
       device.addEventListener('pointercancel', stop);
     });
     window.addEventListener('resize', fitFrames);
-    window.addEventListener('resize', () => { fitFrames(); applyPositions(); });
+    const initial = new URLSearchParams(location.search).get('url') || localStorage.getItem('showcaseUrl') || '';
     const oldStarter = value => { try { return new URL(value).hostname.replace(/^www\./,'') === 'fireship.dev'; } catch { return false; } };
-    function restoreInitialState() {
-      const hashState = location.hash.startsWith('#s=') ? (() => { try { return decodeState(location.hash.slice(3)); } catch { return null; } })() : null;
-      if (hashState && applyState(hashState)) return;
-      let saved = null;
-      try { saved = JSON.parse(localStorage.getItem('showcaseState') || 'null'); } catch {}
-      if (saved && applyState(saved)) return;
-      const requested = new URLSearchParams(location.search).get('url') || localStorage.getItem('showcaseUrl') || '';
-      if (requested && !oldStarter(requested)) { try { appState.url = cleanUrl(requested).href; appState.preview = 'site'; urlInput.value = appState.url; } catch {} }
-      else if (oldStarter(requested)) { localStorage.removeItem('showcaseUrl'); history.replaceState({}, '', location.pathname); }
-      appState.canvas.background.color = /^#[0-9a-f]{6}$/i.test(localStorage.getItem('showcaseBg') || '') ? localStorage.getItem('showcaseBg') : '#b6bec2';
-      appState.canvas.transparent = localStorage.getItem('showcaseBgTransparent') === 'true';
-      for (const key of Object.keys(appState.devices)) {
-        const toggle = document.querySelector(`[data-toggle="${key}"]`);
-        appState.devices[key].visible = toggle.checked; enabled[key] = toggle.checked; updateScreen(key);
-      }
-      applyCanvasSettings(); applyVisibility(); applyPositions();
-      if (appState.preview === 'site' && appState.url) loadSite(appState.url, false); else showDemo();
-    }
-    restoreInitialState();
+    if (initial && !oldStarter(initial)) loadSite(initial);
+    else { if (oldStarter(initial)) { localStorage.removeItem('showcaseUrl'); urlInput.value = ''; history.replaceState({}, '', location.pathname); } showDemo(); }
   </script>
 </body>
 </html>
