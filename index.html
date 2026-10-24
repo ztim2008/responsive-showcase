@@ -83,6 +83,8 @@
     .export-status { flex-basis:100%; color:#414b52; font:11px/1.4 ui-monospace,monospace; min-height:1.4em }
     .preview-notice { display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px 0;padding:10px 12px;border:1px solid #818d92;border-radius:4px;background:#e7eaeb;color:#414b52;font-size:12px }
     .preview-notice a { color:#181e22;font-weight:700;white-space:nowrap }
+    .preview-notice[hidden] { display:none }
+    .preview-notice .btn { flex:none;white-space:nowrap }
     .device.hidden { display:none }
     .empty { position:absolute; inset:0; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:24px; background:rgba(240,239,233,.96); color:var(--ink) }
     .empty.show { display:flex }
@@ -105,7 +107,7 @@
   <main>
     <section class="intro">
       <div><div class="eyebrow">Презентация сайта · 2026</div><h1 id="projectTitle">Ваш новый сайт</h1><p class="sub">Один адрес — на всех экранах.</p></div>
-      <form class="site-link" id="urlForm"><input id="urlInput" type="url" value="https://fireship.dev/" aria-label="Адрес сайта" placeholder="https://example.com"><button type="submit">Показать сайт ↗</button></form>
+      <form class="site-link" id="urlForm"><input id="urlInput" type="url" value="" aria-label="Адрес сайта" placeholder="https://example.com"><button type="submit">Показать сайт ↗</button></form>
     </section>
     <section class="toolbar">
       <div class="tabs" aria-label="Вид"><button class="tab active" data-view="all">Все устройства</button><button class="tab" data-view="desktop">Десктоп</button><button class="tab" data-view="tablet">Планшет</button><button class="tab" data-view="phone">Телефон</button></div>
@@ -114,7 +116,7 @@
     <div class="device-toggles"><strong>Показать:</strong><label><input type="checkbox" data-toggle="desktop" checked> Ноутбук</label><label><input type="checkbox" data-toggle="tablet" checked> Планшет</label><label><input type="checkbox" data-toggle="phone" checked> Телефон</label><span class="drag-hint">Перетаскивайте устройства за подпись</span><button class="reset-layout" id="resetLayout">Сбросить композицию</button></div>
     <div class="canvas-controls" aria-label="Настройки фона и экспорта"><label for="backgroundColor">Фон холста <input id="backgroundColor" type="color" value="#b6bec2"></label><button class="btn" id="transparentBg" type="button" aria-pressed="false">Прозрачный фон</button><button class="btn primary" id="downloadPng" type="button">Скачать PNG ↓</button><span class="export-note">Для захвата страницы выберите эту вкладку в окне браузера.</span><span class="export-status" id="exportStatus" role="status" aria-live="polite"></span></div>
     <section class="board">
-      <div class="board-head"><span>Предпросмотр адаптивности</span><span id="domain">fireship.dev</span></div>
+      <div class="board-head"><span>Предпросмотр адаптивности</span><span id="domain">Демо-макет</span></div>
       <div class="devices">
         <div class="device" data-device="desktop"><div class="screen desktop-frame"><iframe title="Предпросмотр сайта на десктопе"></iframe></div><div class="device-label"><strong>Ноутбук</strong><span>1440 × 900</span></div></div>
         <div class="device" data-device="tablet"><div class="screen tablet-frame"><iframe title="Предпросмотр сайта на планшете"></iframe></div><div class="device-label"><strong>Планшет</strong><span>768 × 1024</span></div></div>
@@ -122,13 +124,14 @@
         <div class="composition-hint">⠿ Перетащите устройства, чтобы собрать композицию</div>
       </div>
     </section>
-    <aside class="preview-notice"><span>Если вместо сайта появилось сообщение о блокировке, владелец сайта запретил встраивание. Это ограничение браузера, приложение не может его снять.</span><a id="openBlockedSite" href="https://fireship.dev/" target="_blank" rel="noopener">Открыть сайт ↗</a></aside>
+    <aside class="preview-notice" id="previewNotice"><span id="previewMessage">Это нейтральный макет — вставьте адрес сайта выше. Если сайт запрещает встраивание, откройте его отдельно или покажите макет-заглушку.</span><button class="btn" id="showDemo" type="button">Показать демо-макет</button><a id="openBlockedSite" href="#" target="_blank" rel="noopener" hidden>Открыть сайт ↗</a></aside>
     <footer class="foot"><span>Подготовлено для обсуждения дизайна и адаптивности</span><span>Если сайт блокирует просмотр, нажмите «Открыть сайт». Предпросмотр может отличаться от настоящего устройства.</span></footer>
   </main>
   <script>
     const urlInput = document.querySelector('#urlInput');
     const frames = [...document.querySelectorAll('iframe')];
     const viewports = { desktop: [1440, 900], tablet: [768, 1024], phone: [390, 844] };
+    const demoDocument = `<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;background:#f6f4ee;color:#192326;font:15px/1.5 Arial,sans-serif}.nav{height:66px;padding:0 7%;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d9ddd6}.brand{font-size:12px;font-weight:800;letter-spacing:.12em}.brand b{color:#d66a42}.links{display:flex;gap:22px;font-size:11px;color:#64706b}.nav button,.cta{border:0;border-radius:3px;background:#1e2928;color:white;padding:11px 16px;font-size:11px;font-weight:700}.hero{min-height:480px;padding:9% 8%;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:5%;background:radial-gradient(ellipse at 80% 42%,#dce5dc,transparent 42%),#f6f4ee}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c26342;font-weight:700}.hero h1{font:500 clamp(34px,5vw,68px)/.98 Georgia,serif;letter-spacing:-.05em;margin:20px 0;max-width:600px}.hero p{max-width:380px;color:#67716a;font-size:14px}.cta{display:inline-block;margin-top:12px;text-decoration:none;background:#d66a42}.art{height:310px;position:relative;border-radius:48% 48% 8px 8px;background:linear-gradient(145deg,#c5d2c6,#e8d8c4 58%,#d39168);overflow:hidden}.sun{position:absolute;width:110px;height:110px;border-radius:50%;background:#f7e9c8;right:18%;top:16%;box-shadow:0 0 60px #fff8}.hill{position:absolute;left:-5%;right:-5%;bottom:-18%;height:60%;border-radius:50% 50% 0 0;background:#61746b;transform:rotate(-8deg)}.hill:after{content:'';position:absolute;width:120%;height:70%;top:34%;left:20%;border-radius:50% 50% 0 0;background:#344b48;transform:rotate(12deg)}.note{position:absolute;bottom:16px;left:16px;background:#f6f4ee;padding:9px 12px;font-size:10px;letter-spacing:.08em}.section{padding:44px 8%;background:#fff}.section small{color:#c26342;letter-spacing:.14em;text-transform:uppercase}.section h2{font:500 30px Georgia,serif;margin:10px 0 24px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{padding:16px;background:#f1f2ec;min-height:100px}.card b{display:block;font:18px Georgia,serif;margin-bottom:7px}.card span{font-size:11px;color:#67716a}@media(max-width:620px){.nav{height:54px;padding:0 6%}.links{display:none}.nav button{padding:9px;font-size:9px}.hero{grid-template-columns:1fr;gap:24px;padding:13% 8%;min-height:0}.hero h1{font-size:42px}.hero p{font-size:13px}.art{height:210px}.section{padding:30px 8%}.section h2{font-size:25px}.cards{grid-template-columns:1fr}.card{min-height:75px}}</style><body><header class="nav"><div class="brand"><b>●</b> ВАШ БРЕНД</div><div class="links"><span>О проекте</span><span>Услуги</span><span>Контакты</span></div><button>Связаться</button></header><main><section class="hero"><div><div class="eyebrow">Новый взгляд на привычное</div><h1>Идеи становятся проектами</h1><p>Это демонстрационный макет. Вставьте адрес своего сайта, чтобы посмотреть его на экранах разных устройств.</p><a class="cta" href="#about">Узнать больше ↗</a></div><div class="art"><div class="sun"></div><div class="hill"></div><div class="note">ПРИМЕР АДАПТИВНОГО ДИЗАЙНА</div></div></section><section class="section" id="about"><small>Наш подход</small><h2>Продумано для каждого экрана</h2><div class="cards"><div class="card"><b>01 — Идея</b><span>Понятная подача и свой характер.</span></div><div class="card"><b>02 — Детали</b><span>Ритм, пространство и типографика.</span></div><div class="card"><b>03 — Результат</b><span>Удобный опыт на любом устройстве.</span></div></div></section></main></body></html>`;
     function fitFrames() {
       frames.forEach(frame => {
         const box = frame.parentElement;
@@ -148,16 +151,35 @@
         document.querySelector('#openBlockedSite').href = normalized;
         document.querySelector('#projectTitle').textContent = url.hostname.replace(/^www\./,'');
         document.title = url.hostname + ' — презентация сайта';
-        frames.forEach(frame => { frame.dataset.current = normalized; frame.src = normalized; });
+        frames.forEach(frame => { frame.dataset.current = normalized; frame.removeAttribute('srcdoc'); frame.src = normalized; });
+        document.querySelector('#previewMessage').textContent = `Если ${url.hostname} не отображается, сайт может запрещать показ внутри iframe. Откройте его отдельно или переключитесь на нейтральный макет.`;
+        document.querySelector('#previewNotice').hidden = false;
+        document.querySelector('#openBlockedSite').href = normalized;
+        document.querySelector('#openBlockedSite').hidden = false;
         requestAnimationFrame(fitFrames);
         history.replaceState({}, '', '?url=' + encodeURIComponent(normalized));
         localStorage.setItem('showcaseUrl', normalized);
         return normalized;
       } catch { urlInput.focus(); urlInput.setCustomValidity('Введите корректную ссылку на сайт'); urlInput.reportValidity(); return null; }
     }
+    function showDemo() {
+      const requested = urlInput.value.trim();
+      let site = null;
+      try { if (requested) site = cleanUrl(requested); } catch {}
+      frames.forEach(frame => { frame.removeAttribute('src'); frame.srcdoc = demoDocument; });
+      document.querySelector('#domain').textContent = site ? `${site.hostname} · демо-макет` : 'Демо-макет';
+      document.querySelector('#projectTitle').textContent = site ? site.hostname.replace(/^www\./,'') : 'Ваш новый сайт';
+      document.title = site ? `${site.hostname} — демо-макет` : 'Показ — предпросмотр сайта на разных устройствах';
+      document.querySelector('#previewMessage').textContent = site ? `Сайт ${site.hostname} открывается отдельно, но не разрешает показ внутри этой композиции. Здесь показан нейтральный макет; уточните у владельца сайта, можно ли разрешить встраивание.` : 'Это нейтральный макет — вставьте адрес сайта выше. Если сайт запрещает встраивание, откройте его отдельно или покажите макет-заглушку.';
+      document.querySelector('#openBlockedSite').hidden = !site;
+      if (site) document.querySelector('#openBlockedSite').href = site.href;
+      document.querySelector('#previewNotice').hidden = false;
+      requestAnimationFrame(fitFrames);
+    }
+    document.querySelector('#showDemo').addEventListener('click', showDemo);
     document.querySelector('#urlForm').addEventListener('submit', e => { e.preventDefault(); urlInput.setCustomValidity(''); loadSite(urlInput.value); });
     document.querySelector('#refresh').addEventListener('click', () => loadSite(urlInput.value));
-    document.querySelector('#openSite').addEventListener('click', () => { const u = cleanUrl(urlInput.value); window.open(u.href, '_blank', 'noopener'); });
+    document.querySelector('#openSite').addEventListener('click', () => { if (!urlInput.value.trim()) return; const u = cleanUrl(urlInput.value); window.open(u.href, '_blank', 'noopener'); });
     document.querySelector('#print').addEventListener('click', () => window.print());
     let activeView = 'all';
     const enabled = { desktop: true, tablet: true, phone: true };
@@ -277,8 +299,11 @@
       device.addEventListener('pointercancel', stop);
     });
     window.addEventListener('resize', fitFrames);
-    const initial = new URLSearchParams(location.search).get('url') || localStorage.getItem('showcaseUrl') || urlInput.value;
-    loadSite(initial);
+    const initial = new URLSearchParams(location.search).get('url') || localStorage.getItem('showcaseUrl') || '';
+    const oldStarter = value => { try { return new URL(value).hostname.replace(/^www\./,'') === 'fireship.dev'; } catch { return false; } };
+    if (initial && !oldStarter(initial)) loadSite(initial);
+    else { if (oldStarter(initial)) { localStorage.removeItem('showcaseUrl'); urlInput.value = ''; } showDemo(); }
   </script>
 </body>
 </html>
+
