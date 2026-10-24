@@ -119,7 +119,7 @@
       <div class="view-actions"><button class="btn" id="openSite">Открыть сайт ↗</button><button class="btn primary" id="refresh">Обновить просмотр</button></div>
     </section>
     <div class="device-toggles"><strong>Показать:</strong><label><input type="checkbox" data-toggle="desktop" checked> Ноутбук</label><label><input type="checkbox" data-toggle="tablet" checked> Планшет</label><label><input type="checkbox" data-toggle="phone" checked> Телефон</label><span class="drag-hint">Перетаскивайте устройства за подпись</span><button class="reset-layout" id="resetLayout">Сбросить композицию</button></div>
-    <div class="canvas-controls" aria-label="Настройки фона и экспорта"><label for="backgroundColor">Фон холста <input id="backgroundColor" type="color" value="#b6bec2"></label><button class="btn" id="transparentBg" type="button" aria-pressed="false">Прозрачный фон</button><button class="btn primary" id="downloadPng" type="button">Скачать PNG ↓</button><span class="export-note">Для захвата страницы выберите эту вкладку в окне браузера.</span><span class="export-status" id="exportStatus" role="status" aria-live="polite"></span></div>
+    <div class="canvas-controls" aria-label="Настройки фона и экспорта"><label for="backgroundColor">Фон холста <input id="backgroundColor" type="color" value="#b6bec2"></label><button class="btn" id="transparentBg" type="button" aria-pressed="false">Прозрачный фон</button><button class="btn primary" id="downloadPng" type="button">PNG для презентации ↓</button><span class="export-note">Разрешите захват этой вкладки — экраны устройств будут сняты в полном размере.</span><span class="export-status" id="exportStatus" role="status" aria-live="polite"></span></div>
     <section class="board">
       <div class="board-head"><span>Предпросмотр адаптивности</span><span id="domain">Тёплая форма</span></div>
       <div class="devices">
@@ -230,73 +230,190 @@
     bgPicker.addEventListener('input', () => setBoardBackground(bgPicker.value, false));
     transparentButton.addEventListener('click', () => setBoardBackground(bgPicker.value, !board.classList.contains('transparent')));
     setBoardBackground(localStorage.getItem('showcaseBg') || '#b6bec2', localStorage.getItem('showcaseBgTransparent') === 'true');
-    document.querySelector('#downloadPng').addEventListener('click', async () => {
-      board.classList.add('presentation-export');
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      let rect = board.getBoundingClientRect();
-      const scale = 3, width = Math.round(rect.width), height = Math.round(rect.height);
-      const status = document.querySelector('#exportStatus');
-      status.textContent = 'Готовлю PNG-презентацию без подписей устройств…';
-      if (navigator.mediaDevices?.getDisplayMedia) {
-        let stream;
-        try {
-          stream = await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser'},audio:false,preferCurrentTab:true});
-          const video = document.createElement('video');
-          video.muted = true; video.playsInline = true;
-          video.srcObject = stream;
-          await video.play();
-          if (!video.videoWidth) await new Promise(resolve => video.addEventListener('loadedmetadata',resolve,{once:true}));
-          await new Promise(resolve => setTimeout(resolve,180));
-          const sourceScaleX=video.videoWidth/window.innerWidth, sourceScaleY=video.videoHeight/window.innerHeight;
-          const sx=rect.left*sourceScaleX, sy=rect.top*sourceScaleY;
-          const sw=rect.width*sourceScaleX, sh=rect.height*sourceScaleY;
-          const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(sw)); canvas.height=Math.max(1,Math.round(sh));
-          const context=canvas.getContext('2d'); context.drawImage(video,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
-          if (board.classList.contains('transparent')) {
-            const mask=document.createElement('canvas'); mask.width=canvas.width; mask.height=canvas.height;
-            const maskContext=mask.getContext('2d'); maskContext.fillStyle='#000';
-            document.querySelectorAll('.device:not(.hidden)').forEach(device=>{
-              const d=device.getBoundingClientRect();
-              const x=(d.left-rect.left)*sourceScaleX, y=(d.top-rect.top)*sourceScaleY, w=d.width*sourceScaleX, h=d.height*sourceScaleY;
-              maskContext.beginPath(); maskContext.roundRect(x,y,w,h,10); maskContext.fill();
-            });
-            context.globalCompositeOperation='destination-in'; context.drawImage(mask,0,0); context.globalCompositeOperation='source-over';
-          }
-          board.classList.remove('presentation-export');
-          await new Promise(resolve=>canvas.toBlob(blob=>{
-            if(blob){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='showcase-presentation.png';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);status.textContent=`PNG-презентация готова: ${canvas.width} × ${canvas.height} px.`;}
-            resolve();
-          },'image/png'));
-          stream.getTracks().forEach(track=>track.stop());
-          return;
-        } catch (error) {
-          if (stream) stream.getTracks().forEach(track=>track.stop());
-          board.classList.remove('presentation-export');
-          rect = board.getBoundingClientRect();
-          status.textContent = 'Захват вкладки отменён или недоступен. Скачиваю PNG с векторными рамками.';
+    function waitForPaint(video) {
+      return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(() => resolve());
+        else setTimeout(resolve, 100);
+      })));
+    }
+    async function captureIframeViewport(video, frame, width, height) {
+      const scaleX = video.videoWidth / window.innerWidth;
+      const scaleY = video.videoHeight / window.innerHeight;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(width * scaleX));
+      canvas.height = Math.max(1, Math.round(height * scaleY));
+      const context = canvas.getContext('2d');
+      for (let y = 0; y < height; y += window.innerHeight) {
+        for (let x = 0; x < width; x += window.innerWidth) {
+          frame.style.left = `${-x}px`;
+          frame.style.top = `${-y}px`;
+          await waitForPaint(video);
+          const cssWidth = Math.min(window.innerWidth, width - x);
+          const cssHeight = Math.min(window.innerHeight, height - y);
+          const pixelWidth = Math.min(video.videoWidth, Math.round(cssWidth * scaleX));
+          const pixelHeight = Math.min(video.videoHeight, Math.round(cssHeight * scaleY));
+          context.drawImage(video, 0, 0, pixelWidth, pixelHeight,
+            Math.round(x * scaleX), Math.round(y * scaleY), pixelWidth, pixelHeight);
         }
-      } else { board.classList.remove('presentation-export'); rect = board.getBoundingClientRect(); status.textContent='Захват вкладки не поддерживается. PNG будет содержать векторные рамки.'; }
-      const rgb = bgPicker.value;
-      const defs = `<defs><linearGradient id="scene" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${rgb}"/><stop offset="1" stop-color="#26364b"/></linearGradient><radialGradient id="glow"><stop offset="0" stop-color="#ffffff" stop-opacity=".24"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient><filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="12"/><feOffset dy="14"/><feComponentTransfer><feFuncA type="linear" slope=".42"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
-      let shapes = board.classList.contains('transparent') ? '' : `<rect width="100%" height="100%" fill="url(#scene)"/><ellipse cx="${width*.18}" cy="${height*.18}" rx="${width*.3}" ry="${height*.36}" fill="url(#glow)"/><circle cx="${width*.84}" cy="${height*.82}" r="${Math.min(width,height)*.38}" fill="#f15b22" opacity=".08"/>`;
-      document.querySelectorAll('.device:not(.hidden)').forEach(device => {
-        const screen = device.querySelector('.screen').getBoundingClientRect();
-        const x=screen.left-rect.left, y=screen.top-rect.top, w=screen.width, h=screen.height;
-        const r=device.dataset.device==='phone'?22:device.dataset.device==='tablet'?14:6;
-        shapes += `<g filter="url(#shadow)"><rect x="${x-8}" y="${y-8}" width="${w+16}" height="${h+16}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(1,r-7)}" fill="#f2f4f4"/>`;
-        if(device.dataset.device==='phone') shapes += `<rect x="${x+w/2-24}" y="${y-7}" width="48" height="12" rx="6" fill="#30383c"/>`;
-        if(device.dataset.device==='desktop') shapes += `<rect x="${x+w*.38}" y="${y+h+8}" width="${w*.24}" height="8" rx="3" fill="#98a1a4"/>`;
+      }
+      return canvas;
+    }
+    function downloadSvgAsPng(svg, width, height, status, filename = 'showcase-presentation.png') {
+      return new Promise((resolve, reject) => {
+        const svgUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+        const image = new Image();
+        image.onerror = () => { URL.revokeObjectURL(svgUrl); reject(new Error('Не удалось собрать PNG')); };
+        image.onload = () => {
+          URL.revokeObjectURL(svgUrl);
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const context = canvas.getContext('2d');
+          context.drawImage(image, 0, 0);
+          canvas.toBlob(blob => {
+            if (!blob) { reject(new Error('Браузер не смог создать PNG')); return; }
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+            status.textContent = `PNG-презентация готова: ${width} × ${height} px.`;
+            resolve();
+          }, 'image/png');
+        };
+        image.src = svgUrl;
+      });
+    }
+    function makePresentationSvg(records, canvasWidth, canvasHeight, background, transparent) {
+      const defs = `<defs><linearGradient id="scene" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${background}"/><stop offset="1" stop-color="#26364b"/></linearGradient><radialGradient id="glow"><stop offset="0" stop-color="#ffffff" stop-opacity=".24"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient><filter id="shadow" x="-30%" y="-30%" width="160%" height="175%"><feGaussianBlur in="SourceAlpha" stdDeviation="12"/><feOffset dy="14"/><feComponentTransfer><feFuncA type="linear" slope=".42"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>${records.map((item, i) => `<clipPath id="screen-${i}" clipPathUnits="userSpaceOnUse"><rect x="${item.left}" y="${item.top}" width="${item.width}" height="${item.height}" rx="${item.corner}"/></clipPath>`).join('')}</defs>`;
+      let shapes = '';
+      records.forEach((item, i) => {
+        const x = item.left, y = item.top, w = item.width, h = item.height;
+        const pad = item.pad, bottom = item.bottom, r = item.radius;
+        const baseY = y + h + pad + bottom;
+        shapes += `<g filter="url(#shadow)"><rect x="${x - pad}" y="${y - pad}" width="${w + pad * 2}" height="${h + pad * 2 + bottom}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${item.corner}" fill="#f2f4f4"/><image x="${x}" y="${y}" width="${w}" height="${h}" href="${item.image}" preserveAspectRatio="none" clip-path="url(#screen-${i})"/>`;
+        if (item.key === 'phone') shapes += `<rect x="${x + w / 2 - item.notchWidth / 2}" y="${y - 1}" width="${item.notchWidth}" height="${item.notchHeight}" rx="${item.notchHeight / 2}" fill="#30383c"/>`;
+        if (item.key === 'desktop') shapes += `<rect x="${x + w * .38}" y="${baseY}" width="${w * .24}" height="${item.standHeight}" rx="${item.standHeight / 2}" fill="#98a1a4"/>`;
         shapes += `</g>`;
       });
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width*scale}" height="${height*scale}" viewBox="0 0 ${width} ${height}">${defs}<g>${shapes}</g></svg>`;
-      const image = new Image(); image.onload = () => {
-        const canvas = document.createElement('canvas'); canvas.width=width*scale; canvas.height=height*scale;
-        const context=canvas.getContext('2d'); context.drawImage(image,0,0); canvas.toBlob(blob=>{
-          if(!blob) return;
-          const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download='showcase-presentation.png'; link.click(); setTimeout(()=>URL.revokeObjectURL(link.href),1000); status.textContent='PNG-презентация готова — без технических подписей.';
-        },'image/png');
+      const backgroundLayer = transparent ? '' : `<rect width="${canvasWidth}" height="${canvasHeight}" fill="url(#scene)"/><ellipse cx="${canvasWidth * .18}" cy="${canvasHeight * .18}" rx="${canvasWidth * .3}" ry="${canvasHeight * .36}" fill="url(#glow)"/><circle cx="${canvasWidth * .84}" cy="${canvasHeight * .82}" r="${Math.min(canvasWidth, canvasHeight) * .38}" fill="#f15b22" opacity=".08"/>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}">${defs}${backgroundLayer}<g>${shapes}</g></svg>`;
+    }
+    function makeVectorFallbackSvg(status) {
+      const rect = board.getBoundingClientRect();
+      const scale = 3, width = Math.round(rect.width), height = Math.round(rect.height);
+      const background = bgPicker.value;
+      const defs = `<defs><linearGradient id="scene" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${background}"/><stop offset="1" stop-color="#26364b"/></linearGradient><radialGradient id="glow"><stop offset="0" stop-color="#ffffff" stop-opacity=".24"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient><filter id="shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur in="SourceAlpha" stdDeviation="12"/><feOffset dy="14"/><feComponentTransfer><feFuncA type="linear" slope=".42"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+      let shapes = board.classList.contains('transparent') ? '' : `<rect width="100%" height="100%" fill="url(#scene)"/><ellipse cx="${width * .18}" cy="${height * .18}" rx="${width * .3}" ry="${height * .36}" fill="url(#glow)"/><circle cx="${width * .84}" cy="${height * .82}" r="${Math.min(width, height) * .38}" fill="#f15b22" opacity=".08"/>`;
+      document.querySelectorAll('.device:not(.hidden)').forEach(device => {
+        const screen = device.querySelector('.screen').getBoundingClientRect();
+        const x = screen.left - rect.left, y = screen.top - rect.top, w = screen.width, h = screen.height;
+        const r = device.dataset.device === 'phone' ? 22 : device.dataset.device === 'tablet' ? 14 : 6;
+        shapes += `<g filter="url(#shadow)"><rect x="${x - 8}" y="${y - 8}" width="${w + 16}" height="${h + 16}" rx="${r}" fill="#30383c" stroke="#879196" stroke-width="2"/><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.max(1, r - 7)}" fill="#f2f4f4"/>`;
+        if (device.dataset.device === 'phone') shapes += `<rect x="${x + w / 2 - 24}" y="${y - 7}" width="48" height="12" rx="6" fill="#30383c"/>`;
+        if (device.dataset.device === 'desktop') shapes += `<rect x="${x + w * .38}" y="${y + h + 8}" width="${w * .24}" height="8" rx="3" fill="#98a1a4"/>`;
+        shapes += `</g>`;
+      });
+      return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${width * scale}" height="${height * scale}" viewBox="0 0 ${width} ${height}">${defs}<g>${shapes}</g></svg>`, width: width * scale, height: height * scale };
+    }
+    document.querySelector('#downloadPng').addEventListener('click', async () => {
+      const status = document.querySelector('#exportStatus');
+      const activeDevices = [...document.querySelectorAll('.device:not(.hidden)')];
+      if (!activeDevices.length) { status.textContent = 'Сначала выберите хотя бы одно устройство.'; return; }
+      board.classList.add('presentation-export');
+      status.textContent = 'Выберите эту вкладку в окне захвата — затем сниму экраны в полном размере…';
+      let shareRequest = null;
+      if (navigator.mediaDevices?.getDisplayMedia) {
+        try { shareRequest = navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'browser' }, audio: false, preferCurrentTab: true }); } catch { shareRequest = null; }
+      }
+      let stream = null, video = null, restored = false;
+      const originalMainVisibility = document.querySelector('main').style.visibility;
+      const originalTopbarVisibility = document.querySelector('.topbar').style.visibility;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalBoardOverflow = board.style.overflow;
+      const boardRect = board.getBoundingClientRect();
+      const records = activeDevices.map(device => {
+        const screenRect = device.querySelector('.screen').getBoundingClientRect();
+        const deviceStyle = getComputedStyle(device);
+        return { key: device.dataset.device, device, screenElement: device.querySelector('.screen'), label: device.querySelector('.device-label'), frame: device.querySelector('iframe'), deviceStyle: device.getAttribute('style'), screenStyle: device.querySelector('.screen').getAttribute('style'), labelStyle: device.querySelector('.device-label').getAttribute('style'), frameStyle: device.querySelector('iframe').getAttribute('style'), screen: { left: screenRect.left, top: screenRect.top, width: screenRect.width, height: screenRect.height }, z: Number.parseInt(deviceStyle.zIndex, 10) || 0 };
+      }).sort((a, b) => a.z - b.z);
+      const restore = () => {
+        if (restored) return;
+        restored = true;
+        records.forEach(item => {
+          if (item.deviceStyle === null) item.device.removeAttribute('style'); else item.device.setAttribute('style', item.deviceStyle);
+          if (item.screenStyle === null) item.screenElement.removeAttribute('style'); else item.screenElement.setAttribute('style', item.screenStyle);
+          if (item.labelStyle === null) item.label.removeAttribute('style'); else item.label.setAttribute('style', item.labelStyle);
+          if (item.frameStyle === null) item.frame.removeAttribute('style'); else item.frame.setAttribute('style', item.frameStyle);
+        });
+        document.querySelector('main').style.visibility = originalMainVisibility;
+        document.querySelector('.topbar').style.visibility = originalTopbarVisibility;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.overflow = originalBodyOverflow;
+        board.style.overflow = originalBoardOverflow;
+        board.classList.remove('presentation-export');
+        if (video) { video.pause(); video.srcObject = null; video.remove(); }
+        stream?.getTracks().forEach(track => track.stop());
       };
-      image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      try {
+        if (!shareRequest) throw new Error('Захват вкладки недоступен');
+        stream = await shareRequest;
+        video = document.createElement('video');
+        video.muted = true; video.playsInline = true; video.srcObject = stream;
+        video.style.cssText = 'position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+        document.body.appendChild(video);
+        await video.play();
+        if (!video.videoWidth) await new Promise(resolve => video.addEventListener('loadedmetadata', resolve, { once: true }));
+        await waitForPaint(video);
+        document.querySelector('main').style.visibility = 'hidden';
+        document.querySelector('.topbar').style.visibility = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        board.style.overflow = 'visible';
+        const captures = [];
+        for (let i = 0; i < records.length; i++) {
+          const item = records[i], [viewportWidth, viewportHeight] = viewports[item.key];
+          status.textContent = `Снимаю экран ${i + 1} из ${records.length} в полном размере…`;
+          item.device.style.cssText = 'position:fixed;left:0;top:0;z-index:2147483647;display:block;transform:none;filter:none;visibility:visible;';
+          item.screenElement.style.cssText = `position:relative;width:${viewportWidth}px;height:${viewportHeight}px;overflow:hidden;border:0;padding:0;box-shadow:none;background:#fff;visibility:visible;`;
+          item.label.style.display = 'none';
+          item.frame.style.cssText = `position:absolute;left:0;top:0;width:${viewportWidth}px;height:${viewportHeight}px;max-width:none;max-height:none;border:0;display:block;transform:none;transform-origin:top left;background:white;`;
+          const image = await captureIframeViewport(video, item.frame, viewportWidth, viewportHeight);
+          item.device.style.visibility = 'hidden';
+          captures.push({ ...item, image, captureWidth: image.width, captureHeight: image.height });
+        }
+        restore();
+        const desktopCapture = captures.find(item => item.key === 'desktop') || captures[0];
+        const layoutScale = desktopCapture.captureWidth / desktopCapture.screen.width;
+        const padding = Math.round(38 * layoutScale);
+        captures.forEach(item => {
+          const centerX = (item.screen.left - boardRect.left + item.screen.width / 2) * layoutScale;
+          const centerY = (item.screen.top - boardRect.top + item.screen.height / 2) * layoutScale;
+          item.width = item.captureWidth; item.height = item.captureHeight;
+          item.left = centerX - item.width / 2; item.top = centerY - item.height / 2;
+          item.pad = Math.max(8, Math.round((item.key === 'desktop' ? 9 : 8) * layoutScale));
+          item.bottom = item.key === 'desktop' ? Math.round(16 * layoutScale) : 0;
+          item.radius = Math.round((item.key === 'phone' ? 22 : item.key === 'tablet' ? 14 : 6) * layoutScale);
+          item.corner = Math.round((item.key === 'phone' ? 14 : item.key === 'tablet' ? 7 : 2) * layoutScale);
+          item.notchWidth = Math.round(48 * layoutScale); item.notchHeight = Math.round(12 * layoutScale); item.standHeight = Math.max(5, Math.round(6 * layoutScale));
+          item.image = item.image.toDataURL('image/png');
+        });
+        const minX = Math.min(0, ...captures.map(item => item.left - item.pad));
+        const minY = Math.min(0, ...captures.map(item => item.top - item.pad));
+        const maxX = Math.max(boardRect.width * layoutScale, ...captures.map(item => item.left + item.width + item.pad));
+        const maxY = Math.max(boardRect.height * layoutScale, ...captures.map(item => item.top + item.height + item.pad + item.bottom));
+        const shiftX = padding - minX, shiftY = padding - minY;
+        captures.forEach(item => { item.left += shiftX; item.top += shiftY; });
+        const canvasWidth = Math.ceil(maxX - minX + padding * 2), canvasHeight = Math.ceil(maxY - minY + padding * 2);
+        const svg = makePresentationSvg(captures, canvasWidth, canvasHeight, bgPicker.value, board.classList.contains('transparent'));
+        await downloadSvgAsPng(svg, canvasWidth, canvasHeight, status);
+      } catch (error) {
+        restore();
+        const fallback = makeVectorFallbackSvg(status);
+        await downloadSvgAsPng(fallback.svg, fallback.width, fallback.height, status);
+        status.textContent = 'Не удалось снять содержимое сайтов. Скачана презентация с векторными рамками.';
+      }
     });
     document.querySelectorAll('.device').forEach(device => {
       let drag = null;
