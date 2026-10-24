@@ -226,7 +226,7 @@
       board.classList.add('presentation-export');
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       let rect = board.getBoundingClientRect();
-      const scale = 2, width = Math.round(rect.width), height = Math.round(rect.height);
+      const scale = 3, width = Math.round(rect.width), height = Math.round(rect.height);
       const status = document.querySelector('#exportStatus');
       status.textContent = 'Готовлю PNG-презентацию без подписей устройств…';
       if (navigator.mediaDevices?.getDisplayMedia) {
@@ -239,23 +239,24 @@
           await video.play();
           if (!video.videoWidth) await new Promise(resolve => video.addEventListener('loadedmetadata',resolve,{once:true}));
           await new Promise(resolve => setTimeout(resolve,180));
-          const sx=rect.left*video.videoWidth/window.innerWidth, sy=rect.top*video.videoHeight/window.innerHeight;
-          const sw=rect.width*video.videoWidth/window.innerWidth, sh=rect.height*video.videoHeight/window.innerHeight;
-          const canvas=document.createElement('canvas'); canvas.width=width*scale; canvas.height=height*scale;
+          const sourceScaleX=video.videoWidth/window.innerWidth, sourceScaleY=video.videoHeight/window.innerHeight;
+          const sx=rect.left*sourceScaleX, sy=rect.top*sourceScaleY;
+          const sw=rect.width*sourceScaleX, sh=rect.height*sourceScaleY;
+          const canvas=document.createElement('canvas'); canvas.width=Math.max(1,Math.round(sw)); canvas.height=Math.max(1,Math.round(sh));
           const context=canvas.getContext('2d'); context.drawImage(video,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
           if (board.classList.contains('transparent')) {
             const mask=document.createElement('canvas'); mask.width=canvas.width; mask.height=canvas.height;
             const maskContext=mask.getContext('2d'); maskContext.fillStyle='#000';
             document.querySelectorAll('.device:not(.hidden)').forEach(device=>{
               const d=device.getBoundingClientRect();
-              const x=(d.left-rect.left)*scale, y=(d.top-rect.top)*scale, w=d.width*scale, h=d.height*scale;
+              const x=(d.left-rect.left)*sourceScaleX, y=(d.top-rect.top)*sourceScaleY, w=d.width*sourceScaleX, h=d.height*sourceScaleY;
               maskContext.beginPath(); maskContext.roundRect(x,y,w,h,10); maskContext.fill();
             });
             context.globalCompositeOperation='destination-in'; context.drawImage(mask,0,0); context.globalCompositeOperation='source-over';
           }
           board.classList.remove('presentation-export');
           await new Promise(resolve=>canvas.toBlob(blob=>{
-            if(blob){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='showcase-presentation.png';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);status.textContent='PNG-презентация готова — без технических подписей.';}
+            if(blob){const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='showcase-presentation.png';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);status.textContent=`PNG-презентация готова: ${canvas.width} × ${canvas.height} px.`;}
             resolve();
           },'image/png'));
           stream.getTracks().forEach(track=>track.stop());
